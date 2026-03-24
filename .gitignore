@@ -1,0 +1,38 @@
+# Ignore node modules in all subfolders
+node_modules/
+**/node_modules/
+
+# Ignore environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+
+# Ignore Next.js build output
+.next/
+out/
+**/dist/
+**/build/
+
+# Ignore Prisma local SQLite DBs if any
+*.db
+*.db-journal
+**/prisma/*.db
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+**/*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Project Specific
+backend/uploads/
+**/uploads/
