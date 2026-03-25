@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, fetchWithAuth } from '@/app/lib/api';
 
 interface Testimonial {
   id: number;
@@ -29,7 +28,7 @@ export default function TestimonialsAdmin() {
 
   const fetchTestimonials = async () => {
     try {
-      const res = await fetch(`${API}/testimonials`);
+      const res = await fetchWithAuth(`${API_URL}/testimonials`);
       const data = await res.json();
       setTestimonials(data);
     } catch (error) {
@@ -68,10 +67,10 @@ export default function TestimonialsAdmin() {
     const data = { name, event, quote, rating: parseInt(rating), featured };
     
     try {
-      const url = editingItem ? `${API}/testimonials/${editingItem.id}` : `${API}/testimonials`;
+      const url = editingItem ? `${API_URL}/testimonials/${editingItem.id}` : `${API_URL}/testimonials`;
       const method = editingItem ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -91,7 +90,7 @@ export default function TestimonialsAdmin() {
 
   const toggleFeatured = async (item: Testimonial) => {
     try {
-      await fetch(`${API}/testimonials/${item.id}`, {
+      await fetchWithAuth(`${API_URL}/testimonials/${item.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...item, featured: !item.featured }),
@@ -105,7 +104,7 @@ export default function TestimonialsAdmin() {
   const deleteTestimonial = async (id: number) => {
     if (!confirm('Are you sure you want to delete this testimonial?')) return;
     try {
-      await fetch(`${API}/testimonials/${id}`, { method: 'DELETE' });
+      await fetchWithAuth(`${API_URL}/testimonials/${id}`, { method: 'DELETE' });
       fetchTestimonials();
     } catch (error) {
       console.error('Failed to delete testimonial:', error);

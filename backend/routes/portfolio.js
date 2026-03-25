@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const auth = require('../middleware/auth');
 
 const prisma = new PrismaClient();
 
@@ -92,7 +93,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/portfolio - Create with multiple image upload
-router.post('/', upload.array('images', 5), async (req, res) => {
+router.post('/', auth, upload.array('images', 5), async (req, res) => {
   try {
     const { title, category, description, featured, order } = req.body;
     
@@ -134,7 +135,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
 });
 
 // PUT /api/portfolio/:id
-router.put('/:id', upload.array('images', 5), async (req, res) => {
+router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
   try {
     const { title, category, description, featured, order } = req.body;
     const portfolioId = parseInt(req.params.id);
@@ -180,7 +181,7 @@ router.put('/:id', upload.array('images', 5), async (req, res) => {
 });
 
 // DELETE /api/portfolio/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     await prisma.portfolioItem.delete({
       where: { id: parseInt(req.params.id) }

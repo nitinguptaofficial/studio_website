@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { API_URL } from '@/app/lib/api';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ export default function ContactForm() {
     setStatus('loading');
 
     try {
-      const res = await fetch('http://localhost:5000/api/contacts', {
+      const res = await fetch(`${API_URL}/contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

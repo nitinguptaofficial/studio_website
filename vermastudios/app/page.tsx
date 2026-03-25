@@ -5,8 +5,7 @@ import Link from 'next/link';
 import SectionTitle from './components/SectionTitle';
 import ServiceCard from './components/ServiceCard';
 import TestimonialCard from './components/TestimonialCard';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl } from '@/app/lib/api';
 
 const stats = [
   { number: '500+', label: 'Happy Clients' },
@@ -52,9 +51,9 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/services`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/portfolio?featured=true`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/testimonials?featured=true`).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/services`).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/portfolio?featured=true`).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/testimonials?featured=true`).then(r => r.json()).catch(() => []),
     ]).then(([s, p, t]) => {
       setServices(s.slice(0, 4));
       setPortfolio(p.slice(0, 6));
@@ -62,11 +61,7 @@ export default function Home() {
     });
   }, []);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   return (
     <>

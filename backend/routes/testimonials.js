@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
+const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
 
 // GET /api/testimonials
@@ -22,7 +23,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/testimonials
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const { name, event, quote, rating, featured } = req.body;
     const testimonial = await prisma.testimonial.create({
@@ -42,7 +43,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/testimonials/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
     const { name, event, quote, rating, featured } = req.body;
     const testimonial = await prisma.testimonial.update({
@@ -56,7 +57,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/testimonials/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     await prisma.testimonial.delete({
       where: { id: parseInt(req.params.id) }

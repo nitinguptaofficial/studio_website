@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl, fetchWithAuth } from '@/app/lib/api';
 
 interface PortfolioImage {
   id: number;
@@ -36,7 +35,7 @@ export default function PortfolioAdmin() {
 
   const fetchItems = async () => {
     try {
-      const res = await fetch(`${API}/portfolio`);
+      const res = await fetchWithAuth(`${API_URL}/portfolio`);
       const data = await res.json();
       setItems(data);
     } catch (error) {
@@ -99,10 +98,10 @@ export default function PortfolioAdmin() {
     });
 
     try {
-      const url = editingItem ? `${API}/portfolio/${editingItem.id}` : `${API}/portfolio`;
+      const url = editingItem ? `${API_URL}/portfolio/${editingItem.id}` : `${API_URL}/portfolio`;
       const method = editingItem ? 'PUT' : 'POST';
 
-      const res = await fetch(url, { method, body: formData });
+      const res = await fetchWithAuth(url, { method, body: formData });
 
       if (res.ok) {
         setShowModal(false);
@@ -125,7 +124,7 @@ export default function PortfolioAdmin() {
     formData.append('order', String(item.order));
 
     try {
-      await fetch(`${API}/portfolio/${item.id}`, { method: 'PUT', body: formData });
+      await fetchWithAuth(`${API_URL}/portfolio/${item.id}`, { method: 'PUT', body: formData });
       fetchItems();
     } catch (error) {
       console.error('Failed to toggle featured:', error);
@@ -135,18 +134,14 @@ export default function PortfolioAdmin() {
   const deleteItem = async (id: number) => {
     if (!confirm('Are you sure you want to delete this item?')) return;
     try {
-      await fetch(`${API}/portfolio/${id}`, { method: 'DELETE' });
+      await fetchWithAuth(`${API_URL}/portfolio/${id}`, { method: 'DELETE' });
       fetchItems();
     } catch (error) {
       console.error('Failed to delete item:', error);
     }
   };
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   return (
     <div>

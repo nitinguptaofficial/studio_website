@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const auth = require('../middleware/auth');
 
 const prisma = new PrismaClient();
 
@@ -68,7 +69,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/services
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     const { name, description, icon, price, features, order } = req.body;
     const imageUrl = req.file ? `/uploads/services/${req.file.filename}` : '';
@@ -92,7 +93,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // PUT /api/services/:id
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', auth, upload.single('image'), async (req, res) => {
   try {
     const { name, description, icon, price, features, order, active } = req.body;
     const data = {
@@ -120,7 +121,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 });
 
 // DELETE /api/services/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     await prisma.service.delete({
       where: { id: parseInt(req.params.id) }

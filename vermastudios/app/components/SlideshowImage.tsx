@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getImageUrl } from '@/app/lib/api';
 
 interface SlideshowImageProps {
   images: { id: number; url: string }[];
@@ -29,11 +30,7 @@ export default function SlideshowImage({ images, fallbackUrl }: SlideshowImagePr
     };
   }, [images]);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   if (!images || images.length === 0) {
     return (

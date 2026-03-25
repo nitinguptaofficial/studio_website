@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import PortfolioGrid from '../components/PortfolioGrid';
 import SectionTitle from '../components/SectionTitle';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl } from '@/app/lib/api';
 
 interface PortfolioItem {
   id: number;
@@ -18,12 +17,12 @@ export default function WorkPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/portfolio`)
+    fetch(`${API_URL}/portfolio`)
       .then(r => r.json())
       .then(data => {
         const mapped = data.map((item: PortfolioItem) => ({
           ...item,
-          imageUrl: item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:5000${item.imageUrl}`,
+          imageUrl: getImageUrl(item.imageUrl),
         }));
         setItems(mapped);
       })

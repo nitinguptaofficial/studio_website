@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { API_URL, fetchWithAuth } from '@/app/lib/api';
 
 interface Stats {
   contacts: number;
@@ -18,10 +19,10 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         const [contactsRes, portfolioRes, servicesRes, testimonialsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/contacts'),
-          fetch('http://localhost:5000/api/portfolio'),
-          fetch('http://localhost:5000/api/services'),
-          fetch('http://localhost:5000/api/testimonials')
+          fetchWithAuth(`${API_URL}/contacts`),
+          fetchWithAuth(`${API_URL}/portfolio`),
+          fetchWithAuth(`${API_URL}/services?all=true`),
+          fetchWithAuth(`${API_URL}/testimonials`)
         ]);
 
         const contacts = await contactsRes.json();

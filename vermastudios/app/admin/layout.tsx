@@ -5,28 +5,32 @@ export const metadata: Metadata = {
   description: 'Manage Varma Studios content and contacts.',
 };
 
+import AdminGuard from '../components/AdminGuard';
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: 'var(--color-gray-100)',
-    }}>
-      {/* Sidebar will go here, currently using dynamic import or directly in Next.js 13+ it's better to render it in layout if it's static */}
-      {/* Since the Sidebar uses 'use client' for active links, we should create a separate client component */}
-      <Sidebar />
-      <main style={{
-        flex: 1,
-        padding: '32px',
-        overflowY: 'auto',
+    <AdminGuard>
+      <div style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: 'var(--color-gray-100)',
       }}>
-        {children}
-      </main>
-    </div>
+        {/* Sidebar will go here, currently using dynamic import or directly in Next.js 13+ it's better to render it in layout if it's static */}
+        {/* Since the Sidebar uses 'use client' for active links, we should create a separate client component */}
+        <Sidebar />
+        <main style={{
+          flex: 1,
+          padding: '32px',
+          overflowY: 'auto',
+        }}>
+          {children}
+        </main>
+      </div>
+    </AdminGuard>
   );
 }
 

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SectionTitle from '../components/SectionTitle';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl } from '@/app/lib/api';
 
 interface Service {
   id: number;
@@ -28,18 +27,14 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/services`)
+    fetch(`${API_URL}/services`)
       .then(r => r.json())
       .then(setServices)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   return (
     <>

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import SectionTitle from '../components/SectionTitle';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl } from '@/app/lib/api';
 
 interface TeamMember {
   id: number;
@@ -27,19 +26,15 @@ export default function AboutPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/about/team`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/about/timeline`).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/about/team`).then(r => r.json()).catch(() => []),
+      fetch(`${API_URL}/about/timeline`).then(r => r.json()).catch(() => []),
     ]).then(([t, tl]) => {
       setTeam(t);
       setTimeline(tl);
     }).finally(() => setLoading(false));
   }, []);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   return (
     <>

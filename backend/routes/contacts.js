@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { sendAdminNotification, sendUserConfirmation } = require('./emailService');
+const auth = require('../middleware/auth');
 
 const prisma = new PrismaClient();
 
@@ -38,7 +39,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/contacts - List all contacts (admin)
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const contacts = await prisma.contact.findMany({
       orderBy: { createdAt: 'desc' }
@@ -51,7 +52,7 @@ router.get('/', async (req, res) => {
 });
 
 // PATCH /api/contacts/:id/read - Mark as read
-router.patch('/:id/read', async (req, res) => {
+router.patch('/:id/read', auth, async (req, res) => {
   try {
     const contact = await prisma.contact.update({
       where: { id: parseInt(req.params.id) },
@@ -64,7 +65,7 @@ router.patch('/:id/read', async (req, res) => {
 });
 
 // DELETE /api/contacts/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     await prisma.contact.delete({
       where: { id: parseInt(req.params.id) }

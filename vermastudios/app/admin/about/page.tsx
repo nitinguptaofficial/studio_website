@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl, fetchWithAuth } from '@/app/lib/api';
 
 interface TeamMember {
   id: number;
@@ -47,8 +46,8 @@ export default function AboutAdmin() {
   const fetchData = async () => {
     try {
       const [teamRes, timelineRes] = await Promise.all([
-        fetch(`${API}/about/team`),
-        fetch(`${API}/about/timeline`),
+        fetchWithAuth(`${API_URL}/about/team`),
+        fetchWithAuth(`${API_URL}/about/timeline`),
       ]);
       setTeam(await teamRes.json());
       setTimeline(await timelineRes.json());
@@ -61,11 +60,7 @@ export default function AboutAdmin() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   // ==================== TEAM HANDLERS ====================
   const resetTeamForm = () => {
@@ -94,11 +89,11 @@ export default function AboutAdmin() {
     formData.append('order', memberOrder);
     if (memberFile) formData.append('image', memberFile);
 
-    const url = editingMember ? `${API}/about/team/${editingMember.id}` : `${API}/about/team`;
+    const url = editingMember ? `${API_URL}/about/team/${editingMember.id}` : `${API_URL}/about/team`;
     const method = editingMember ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, { method, body: formData });
+      const res = await fetchWithAuth(url, { method, body: formData });
       if (res.ok) { setShowTeamModal(false); resetTeamForm(); fetchData(); }
       else alert('Failed to save team member.');
     } catch (error) { console.error('Error saving team member:', error); }
@@ -106,7 +101,7 @@ export default function AboutAdmin() {
 
   const deleteMember = async (id: number) => {
     if (!confirm('Delete this team member?')) return;
-    await fetch(`${API}/about/team/${id}`, { method: 'DELETE' });
+    await fetchWithAuth(`${API_URL}/about/team/${id}`, { method: 'DELETE' });
     fetchData();
   };
 
@@ -131,11 +126,11 @@ export default function AboutAdmin() {
     e.preventDefault();
     const data = { year: eventYear, title: eventTitle, description: eventDesc, order: parseInt(eventOrder) };
 
-    const url = editingEvent ? `${API}/about/timeline/${editingEvent.id}` : `${API}/about/timeline`;
+    const url = editingEvent ? `${API_URL}/about/timeline/${editingEvent.id}` : `${API_URL}/about/timeline`;
     const method = editingEvent ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -147,7 +142,7 @@ export default function AboutAdmin() {
 
   const deleteEvent = async (id: number) => {
     if (!confirm('Delete this timeline event?')) return;
-    await fetch(`${API}/about/timeline/${id}`, { method: 'DELETE' });
+    await fetchWithAuth(`${API_URL}/about/timeline/${id}`, { method: 'DELETE' });
     fetchData();
   };
 

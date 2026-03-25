@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-
-const API = 'http://localhost:5000/api';
+import { API_URL, getImageUrl, fetchWithAuth } from '@/app/lib/api';
 
 interface Service {
   id: number;
@@ -34,7 +33,7 @@ export default function ServicesAdmin() {
 
   const fetchServices = async () => {
     try {
-      const res = await fetch(`${API}/services?all=true`);
+      const res = await fetchWithAuth(`${API_URL}/services?all=true`);
       const data = await res.json();
       setServices(data);
     } catch (error) {
@@ -85,10 +84,10 @@ export default function ServicesAdmin() {
     if (file) formData.append('image', file);
 
     try {
-      const url = editingService ? `${API}/services/${editingService.id}` : `${API}/services`;
+      const url = editingService ? `${API_URL}/services/${editingService.id}` : `${API_URL}/services`;
       const method = editingService ? 'PUT' : 'POST';
 
-      const res = await fetch(url, { method, body: formData });
+      const res = await fetchWithAuth(url, { method, body: formData });
 
       if (res.ok) {
         setShowModal(false);
@@ -105,18 +104,14 @@ export default function ServicesAdmin() {
   const deleteService = async (id: number) => {
     if (!confirm('Are you sure you want to delete this service?')) return;
     try {
-      await fetch(`${API}/services/${id}`, { method: 'DELETE' });
+      await fetchWithAuth(`${API_URL}/services/${id}`, { method: 'DELETE' });
       fetchServices();
     } catch (error) {
       console.error('Failed to delete service:', error);
     }
   };
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://localhost:5000${url}`;
-  };
+
 
   return (
     <div>

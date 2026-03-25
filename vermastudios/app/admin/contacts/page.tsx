@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { API_URL, fetchWithAuth } from '@/app/lib/api';
 
 interface Contact {
   id: number;
@@ -19,7 +20,7 @@ export default function ContactsAdmin() {
 
   const fetchContacts = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/contacts');
+      const res = await fetchWithAuth(`${API_URL}/contacts`);
       const data = await res.json();
       setContacts(data);
     } catch (error) {
@@ -35,7 +36,7 @@ export default function ContactsAdmin() {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/contacts/${id}/read`, { method: 'PATCH' });
+      await fetchWithAuth(`${API_URL}/contacts/${id}/read`, { method: 'PATCH' });
       fetchContacts();
     } catch (error) {
       console.error('Failed to mark as read:', error);
@@ -45,7 +46,7 @@ export default function ContactsAdmin() {
   const deleteContact = async (id: number) => {
     if (!confirm('Are you sure you want to delete this message?')) return;
     try {
-      await fetch(`http://localhost:5000/api/contacts/${id}`, { method: 'DELETE' });
+      await fetchWithAuth(`${API_URL}/contacts/${id}`, { method: 'DELETE' });
       fetchContacts();
     } catch (error) {
       console.error('Failed to delete contact:', error);

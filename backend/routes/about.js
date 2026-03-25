@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const auth = require('../middleware/auth');
 
 const prisma = new PrismaClient();
 
@@ -53,7 +54,7 @@ router.get('/team', async (req, res) => {
 });
 
 // POST /api/about/team
-router.post('/team', upload.single('image'), async (req, res) => {
+router.post('/team', auth, upload.single('image'), async (req, res) => {
   try {
     const { name, role, bio, order } = req.body;
     const imageUrl = req.file ? `/uploads/team/${req.file.filename}` : '';
@@ -76,7 +77,7 @@ router.post('/team', upload.single('image'), async (req, res) => {
 });
 
 // PUT /api/about/team/:id
-router.put('/team/:id', upload.single('image'), async (req, res) => {
+router.put('/team/:id', auth, upload.single('image'), async (req, res) => {
   try {
     const { name, role, bio, order } = req.body;
     const data = {
@@ -102,7 +103,7 @@ router.put('/team/:id', upload.single('image'), async (req, res) => {
 });
 
 // DELETE /api/about/team/:id
-router.delete('/team/:id', async (req, res) => {
+router.delete('/team/:id', auth, async (req, res) => {
   try {
     await prisma.teamMember.delete({
       where: { id: parseInt(req.params.id) }
@@ -129,7 +130,7 @@ router.get('/timeline', async (req, res) => {
 });
 
 // POST /api/about/timeline
-router.post('/timeline', async (req, res) => {
+router.post('/timeline', auth, async (req, res) => {
   try {
     const { year, title, description, order } = req.body;
     const event = await prisma.timelineEvent.create({
@@ -148,7 +149,7 @@ router.post('/timeline', async (req, res) => {
 });
 
 // PUT /api/about/timeline/:id
-router.put('/timeline/:id', async (req, res) => {
+router.put('/timeline/:id', auth, async (req, res) => {
   try {
     const { year, title, description, order } = req.body;
     const event = await prisma.timelineEvent.update({
@@ -162,7 +163,7 @@ router.put('/timeline/:id', async (req, res) => {
 });
 
 // DELETE /api/about/timeline/:id
-router.delete('/timeline/:id', async (req, res) => {
+router.delete('/timeline/:id', auth, async (req, res) => {
   try {
     await prisma.timelineEvent.delete({
       where: { id: parseInt(req.params.id) }
