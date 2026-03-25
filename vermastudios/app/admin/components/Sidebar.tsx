@@ -10,6 +10,7 @@ export default function Sidebar() {
     { href: '/admin', label: 'Dashboard', icon: '📊' },
     { href: '/admin/contacts', label: 'Contacts', icon: '✉️' },
     { href: '/admin/portfolio', label: 'Portfolio', icon: '🖼️' },
+    { href: '/admin/events', label: 'Events', icon: '📸' },
     { href: '/admin/services', label: 'Services', icon: '💼' },
     { href: '/admin/testimonials', label: 'Testimonials', icon: '⭐' },
     { href: '/admin/about', label: 'About Page', icon: '📄' },

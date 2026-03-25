@@ -9,6 +9,7 @@ interface Stats {
   portfolio: number;
   services: number;
   testimonials: number;
+  events: number;
 }
 
 export default function AdminDashboard() {
@@ -18,17 +19,19 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [contactsRes, portfolioRes, servicesRes, testimonialsRes] = await Promise.all([
+        const [contactsRes, portfolioRes, servicesRes, testimonialsRes, eventsRes] = await Promise.all([
           fetchWithAuth(`${API_URL}/contacts`),
           fetchWithAuth(`${API_URL}/portfolio`),
           fetchWithAuth(`${API_URL}/services?all=true`),
-          fetchWithAuth(`${API_URL}/testimonials`)
+          fetchWithAuth(`${API_URL}/testimonials`),
+          fetchWithAuth(`${API_URL}/events`),
         ]);
 
         const contacts = await contactsRes.json();
         const portfolio = await portfolioRes.json();
         const services = await servicesRes.json();
         const testimonials = await testimonialsRes.json();
+        const events = await eventsRes.json();
 
         setStats({
           contacts: contacts.length,
@@ -36,6 +39,7 @@ export default function AdminDashboard() {
           portfolio: portfolio.length,
           services: services.length,
           testimonials: testimonials.length,
+          events: Array.isArray(events) ? events.length : 0,
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -91,6 +95,10 @@ export default function AdminDashboard() {
           <div style={cardStyle}>
             <p style={cardLabel}>Testimonials</p>
             <p style={cardValue}>{stats?.testimonials}</p>
+          </div>
+          <div style={cardStyle}>
+            <p style={cardLabel}>Events</p>
+            <p style={cardValue}>{stats?.events}</p>
           </div>
         </div>
       )}

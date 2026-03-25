@@ -24,6 +24,7 @@ app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/services', require('./routes/services'));
 app.use('/api/testimonials', require('./routes/testimonials'));
 app.use('/api/about', require('./routes/about'));
+app.use('/api/events', require('./routes/events'));
 
 // Health check
 app.get('/api/health', (req, res) => {
