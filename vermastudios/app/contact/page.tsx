@@ -1,13 +1,7 @@
 'use client';
 
-import type { Metadata } from 'next';
 import ContactForm from '../components/ContactForm';
 import SectionTitle from '../components/SectionTitle';
-
-// export const metadata: Metadata = {
-//   title: 'Contact Us | Varma Studios',
-//   description: 'Get in touch with Varma Studios. Book a photography session, request a quote, or just say hello.',
-// };
 
 const contactInfo = [
   {
