@@ -7,17 +7,17 @@ const contactInfo = [
   {
     icon: '📍',
     title: 'Visit Our Studio',
-    lines: ['123 Photography Lane', 'Creative District, Mumbai 400001'],
+    lines: ['S-3, Param Puri', 'Uttam Nagar, New Delhi - 110059'],
   },
   {
     icon: '📞',
     title: 'Call Us',
-    lines: ['+91 98765 43210', '+91 98765 43211'],
+    lines: ['+91 98105 02795', '+91 95823 72497'],
   },
   {
     icon: '✉️',
     title: 'Email Us',
-    lines: ['hello@vermastudios.com', 'bookings@vermastudios.com'],
+    lines: ['Vermastudio297@gmail.com'],
   },
   {
     icon: '🕐',
@@ -133,7 +133,7 @@ export default function ContactPage() {
                 gap: '16px',
               }}>
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241317.11609823277!2d72.74109995709657!3d19.08219783958221!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1649761092064!5m2!1sen!2sin"
+                  src="https://www.google.com/maps/embed?pb=!4v1774614779797!6m8!1m7!1sTIUrAw586S1BYF-nFZ8_QQ!2m2!1d28.61729417013438!2d77.05772770174251!3f177.84975920361154!4f-2.7544180680907573!5f0.7820865974627469"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -142,6 +142,15 @@ export default function ContactPage() {
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Varma Studios Location"
                 />
+
+                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d346.4818952413956!2d77.05744584857997!3d28.61718546905761!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d04d7c85d7dcf%3A0x8b981693413dcb7c!2sS-3%2C%20Param%20Puri%2C%20Uttam%20Nagar%2C%20Delhi%2C%20110059!5e0!3m2!1sen!2sin!4v1774615095742!5m2!1sen!2sin" width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Varma Studios Location">
+                </iframe>
               </div>
 
               {/* Additional Info */}
