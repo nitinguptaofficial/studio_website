@@ -7,12 +7,14 @@ import Footer from './Footer';
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
+  const isGallery = pathname?.startsWith('/gallery');
+  const hideChrome = isAdmin || isGallery;
 
   return (
     <>
-      {!isAdmin && <Header />}
+      {!hideChrome && <Header />}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
-      {!isAdmin && <Footer />}
+      {!hideChrome && <Footer />}
     </>
   );
 }

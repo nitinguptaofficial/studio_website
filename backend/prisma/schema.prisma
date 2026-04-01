@@ -84,18 +84,17 @@ model TimelineEvent {
 }
 
 model Event {
-  id              Int      @id @default(autoincrement())
-  title           String
-  clientName      String
-  eventDate       DateTime
-  price           String?
-  category        String?
-  status          String   @default("upcoming")
-  description     String?
-  notes           String?
-  driveFolderId   String?
-  driveFolderLink String?
-  driveFileCount  Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(uuid())
+  title          String
+  clientName     String
+  eventDate      DateTime
+  price          String?
+  category       String?
+  status         String   @default("upcoming")
+  description    String?
+  notes          String?
+  driveFolderUrl String?
+  accessCode     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

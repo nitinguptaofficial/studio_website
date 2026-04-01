@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { API_URL, fetchWithAuth } from '@/app/lib/api';
 
 interface Event {
-  id: number;
+  id: string;
   title: string;
   clientName: string;
   eventDate: string;
@@ -13,8 +13,9 @@ interface Event {
   status: string;
   description: string | null;
   notes: string | null;
-  driveFolderLink: string | null;
-  driveFileCount: number;
+  driveFolderUrl: string | null;
+  hasAccessCode: boolean;
+  hasDriveFolder: boolean;
   createdAt: string;
 }
 
@@ -27,21 +28,29 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 const CATEGORIES = ['Wedding', 'Pre-Wedding', 'Birthday', 'Corporate', 'Baby Shower', 'Maternity', 'Other'];
 
+function generateAccessCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 export default function EventsAdminPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState<Event | null>(null);
   const [showEditModal, setShowEditModal] = useState<Event | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<string>('');
-  const [copiedId, setCopiedId] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: '', clientName: '', eventDate: '',
     price: '', category: '', status: 'upcoming',
     description: '', notes: '',
+    driveFolderUrl: '', accessCode: '',
   });
 
   const fetchEvents = useCallback(async () => {
@@ -58,11 +67,15 @@ export default function EventsAdminPage() {
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
-  const resetForm = () => setForm({
-    title: '', clientName: '', eventDate: '',
-    price: '', category: '', status: 'upcoming',
-    description: '', notes: '',
-  });
+  const resetForm = () => {
+    setForm({
+      title: '', clientName: '', eventDate: '',
+      price: '', category: '', status: 'upcoming',
+      description: '', notes: '',
+      driveFolderUrl: '', accessCode: '',
+    });
+    setGeneratedCode(null);
+  };
 
   const openEdit = (event: Event) => {
     setForm({
@@ -74,7 +87,10 @@ export default function EventsAdminPage() {
       status: event.status,
       description: event.description || '',
       notes: event.notes || '',
+      driveFolderUrl: event.driveFolderUrl || '',
+      accessCode: '',
     });
+    setGeneratedCode(null);
     setShowEditModal(event);
   };
 
@@ -85,7 +101,13 @@ export default function EventsAdminPage() {
       const res = await fetchWithAuth(`${API_URL}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, price: form.price || null, category: form.category || null }),
+        body: JSON.stringify({
+          ...form,
+          price: form.price || null,
+          category: form.category || null,
+          driveFolderUrl: form.driveFolderUrl || null,
+          accessCode: form.accessCode || null,
+        }),
       });
       if (!res.ok) throw new Error('Failed to create event');
       await fetchEvents();
@@ -103,10 +125,20 @@ export default function EventsAdminPage() {
     if (!showEditModal) return;
     setActionLoading(true);
     try {
+      const payload: Record<string, unknown> = {
+        ...form,
+        price: form.price || null,
+        category: form.category || null,
+        driveFolderUrl: form.driveFolderUrl || null,
+      };
+      // Only send accessCode if admin typed a new one
+      if (form.accessCode.trim()) {
+        payload.accessCode = form.accessCode.trim();
+      }
       const res = await fetchWithAuth(`${API_URL}/events/${showEditModal.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, price: form.price || null, category: form.category || null }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Failed to update event');
       await fetchEvents();
@@ -119,7 +151,7 @@ export default function EventsAdminPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this event record?')) return;
     try {
       await fetchWithAuth(`${API_URL}/events/${id}`, { method: 'DELETE' });
@@ -129,52 +161,17 @@ export default function EventsAdminPage() {
     }
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!showUploadModal || !fileInputRef.current?.files?.length) return;
-
-    const files = Array.from(fileInputRef.current.files);
-    const BATCH_SIZE = 100;
-    setActionLoading(true);
-    setUploadProgress('');
-
-    try {
-      let totalUploaded = 0;
-      for (let i = 0; i < files.length; i += BATCH_SIZE) {
-        const batch = files.slice(i, i + BATCH_SIZE);
-        const formData = new FormData();
-        batch.forEach(file => formData.append('photos', file));
-        setUploadProgress(`Uploading batch ${Math.floor(i / BATCH_SIZE) + 1} / ${Math.ceil(files.length / BATCH_SIZE)} — ${totalUploaded} of ${files.length} photos done…`);
-
-        const res = await fetchWithAuth(`${API_URL}/events/${showUploadModal.id}/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Upload failed');
-        }
-        totalUploaded += batch.length;
-      }
-
-      setUploadProgress(`✅ All ${files.length} photos uploaded successfully!`);
-      await fetchEvents();
-      setTimeout(() => {
-        setShowUploadModal(null);
-        setUploadProgress('');
-      }, 2000);
-    } catch (err: any) {
-      setUploadProgress(`❌ Error: ${err.message}`);
-    } finally {
-      setActionLoading(false);
-    }
+  const copyClientLink = (eventId: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    navigator.clipboard.writeText(`${origin}/gallery/${eventId}`);
+    setCopiedId(eventId);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const copyLink = (event: Event) => {
-    if (!event.driveFolderLink) return;
-    navigator.clipboard.writeText(event.driveFolderLink);
-    setCopiedId(event.id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleGenerateCode = () => {
+    const code = generateAccessCode();
+    setForm(p => ({ ...p, accessCode: code }));
+    setGeneratedCode(code);
   };
 
   return (
@@ -186,7 +183,7 @@ export default function EventsAdminPage() {
             Event Gallery
           </h1>
           <p style={{ color: 'var(--color-gray-500)' }}>
-            Manage events, upload photos to Google Drive, and share gallery links with clients.
+            Manage and track your studio events.
           </p>
         </div>
         <button onClick={() => { resetForm(); setShowCreateModal(true); }} style={btnPrimary}>
@@ -200,7 +197,7 @@ export default function EventsAdminPage() {
           { label: 'Total Events', value: events.length },
           { label: 'Completed', value: events.filter(e => e.status === 'completed').length },
           { label: 'Upcoming', value: events.filter(e => e.status === 'upcoming').length },
-          { label: 'Total Photos', value: events.reduce((a, e) => a + e.driveFileCount, 0).toLocaleString() },
+          { label: 'With Gallery', value: events.filter(e => e.hasDriveFolder).length },
         ].map(s => (
           <div key={s.label} style={statCard}>
             <p style={statLabel}>{s.label}</p>
@@ -223,7 +220,7 @@ export default function EventsAdminPage() {
           <table style={tableStyle}>
             <thead>
               <tr>
-                {['Title & Client', 'Date', 'Category', 'Status', 'Price', 'Photos', 'Drive Link', 'Actions'].map(h => (
+                {['Title & Client', 'Date', 'Category', 'Status', 'Gallery', 'Price', 'Actions'].map(h => (
                   <th key={h} style={thStyle}>{h}</th>
                 ))}
               </tr>
@@ -246,34 +243,33 @@ export default function EventsAdminPage() {
                         {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                       </span>
                     </td>
-                    <td style={tdStyle}>{event.price ? `₹${event.price}` : '—'}</td>
-                    <td style={{ ...tdStyle, textAlign: 'center' }}>
-                      <span style={{ fontWeight: 600, color: event.driveFileCount > 0 ? '#065f46' : 'var(--color-gray-500)' }}>
-                        {event.driveFileCount.toLocaleString()}
-                      </span>
-                    </td>
                     <td style={tdStyle}>
-                      {event.driveFolderLink ? (
-                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                          <a href={event.driveFolderLink} target="_blank" rel="noopener noreferrer" style={linkBtn}>
-                            Open Drive
-                          </a>
-                          <button onClick={() => copyLink(event)} style={iconBtn} title="Copy link">
-                            {copiedId === event.id ? '✅' : '📋'}
-                          </button>
+                      {event.hasDriveFolder ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ ...statusBadge, background: '#dbeafe', color: '#1e40af' }}>📷 Active</span>
+                          {event.hasAccessCode && (
+                            <span style={{ ...statusBadge, background: '#d1fae5', color: '#065f46', fontSize: '11px' }}>🔒</span>
+                          )}
                         </div>
                       ) : (
-                        <span style={{ color: 'var(--color-gray-400)', fontSize: '13px' }}>No folder yet</span>
+                        <span style={{ color: 'var(--color-gray-400)', fontSize: '13px' }}>—</span>
                       )}
                     </td>
+                    <td style={tdStyle}>{event.price ? `₹${event.price}` : '—'}</td>
                     <td style={tdStyle}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button onClick={() => setShowUploadModal(event)} style={btnUpload} title="Upload photos">
-                          📤 Upload
-                        </button>
                         <button onClick={() => openEdit(event)} style={btnEdit} title="Edit event">
                           ✏️
                         </button>
+                        {event.hasDriveFolder && (
+                          <button
+                            onClick={() => copyClientLink(event.id)}
+                            style={{ ...btnCopy, background: copiedId === event.id ? '#10b981' : '#6366f1' }}
+                            title="Copy client gallery link"
+                          >
+                            {copiedId === event.id ? '✓' : '🔗'}
+                          </button>
+                        )}
                         <button onClick={() => handleDelete(event.id)} style={btnDelete} title="Delete event">
                           🗑️
                         </button>
@@ -326,11 +322,51 @@ export default function EventsAdminPage() {
             <FormField label="Internal Notes">
               <textarea style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Private notes (not shown to client)" />
             </FormField>
-            {showCreateModal && (
-              <p style={{ fontSize: '13px', color: 'var(--color-gray-500)', marginBottom: '16px' }}>
-                A Google Drive folder will be created automatically for this event (requires credentials in .env).
-              </p>
-            )}
+
+            {/* ── Photo Delivery Section ── */}
+            <div style={deliverySectionStyle}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-black)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>📸</span> Photo Delivery
+              </h3>
+              <FormField label="Google Drive Folder URL">
+                <input
+                  style={inputStyle}
+                  value={form.driveFolderUrl}
+                  onChange={e => setForm(p => ({ ...p, driveFolderUrl: e.target.value }))}
+                  placeholder="https://drive.google.com/drive/folders/..."
+                />
+                <p style={hintText}>Paste the Google Drive folder link containing the client&apos;s photos.</p>
+              </FormField>
+              <FormField label={showEditModal ? 'New Access Code (leave blank to keep current)' : 'Client Access Code'}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    style={{ ...inputStyle, flex: 1 }}
+                    value={form.accessCode}
+                    onChange={e => { setForm(p => ({ ...p, accessCode: e.target.value })); setGeneratedCode(null); }}
+                    placeholder={showEditModal ? '(leave blank to keep current)' : 'e.g. A3X9K2'}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGenerateCode}
+                    style={btnGenerate}
+                    title="Generate random code"
+                  >
+                    🔄 Generate
+                  </button>
+                </div>
+                {generatedCode && (
+                  <p style={{ ...hintText, color: '#059669', fontWeight: 600, marginTop: '6px' }}>
+                    Generated code: <span style={{ fontFamily: 'monospace', fontSize: '15px', letterSpacing: '2px' }}>{generatedCode}</span> — share this with your client.
+                  </p>
+                )}
+                {showEditModal && showEditModal.hasAccessCode && !form.accessCode && (
+                  <p style={{ ...hintText, color: '#6366f1', marginTop: '4px' }}>
+                    🔒 This event already has an access code set.
+                  </p>
+                )}
+              </FormField>
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button type="button" onClick={() => { setShowCreateModal(false); setShowEditModal(null); resetForm(); }} style={btnSecondary}>
                 Cancel
@@ -343,71 +379,6 @@ export default function EventsAdminPage() {
         </ModalOverlay>
       )}
 
-      {/* ── Upload Photos Modal ── */}
-      {showUploadModal && (
-        <ModalOverlay onClose={() => { if (!actionLoading) { setShowUploadModal(null); setUploadProgress(''); } }}>
-          <h2 style={modalTitle}>Upload Photos — {showUploadModal.title}</h2>
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px' }}>
-            <p style={{ fontSize: '14px', color: '#065f46', fontWeight: 500 }}>
-              📸 Currently {showUploadModal.driveFileCount.toLocaleString()} photos in Drive
-            </p>
-            {showUploadModal.driveFolderLink && (
-              <a href={showUploadModal.driveFolderLink} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: '13px', color: '#15803d', textDecoration: 'underline' }}>
-                View Google Drive Folder →
-              </a>
-            )}
-          </div>
-          <form onSubmit={handleUpload}>
-            <div style={{ border: '2px dashed var(--color-gray-300)', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '20px', background: 'var(--color-gray-50)' }}>
-              <p style={{ fontSize: '32px', marginBottom: '8px' }}>📁</p>
-              <p style={{ fontWeight: 600, color: 'var(--color-black)', marginBottom: '4px' }}>
-                Select photos to upload
-              </p>
-              <p style={{ fontSize: '13px', color: 'var(--color-gray-500)', marginBottom: '16px' }}>
-                Supports JPEG, PNG, WebP, HEIC. Select any number of files — they will be uploaded in batches.
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                id="photo-upload-input"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  const count = e.target.files?.length ?? 0;
-                  const label = document.getElementById('file-count-label');
-                  if (label) label.textContent = count > 0 ? `${count.toLocaleString()} file${count === 1 ? '' : 's'} selected` : '';
-                }}
-              />
-              <label htmlFor="photo-upload-input" style={{ ...btnPrimary, cursor: 'pointer', display: 'inline-block' }}>
-                Browse Files
-              </label>
-              <p id="file-count-label" style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-gray-600)', fontWeight: 500 }}></p>
-            </div>
-
-            {uploadProgress && (
-              <div style={{
-                background: uploadProgress.startsWith('❌') ? '#fee2e2' : uploadProgress.startsWith('✅') ? '#d1fae5' : '#dbeafe',
-                borderRadius: '8px', padding: '12px 16px', marginBottom: '16px',
-                fontSize: '14px', color: uploadProgress.startsWith('❌') ? '#991b1b' : uploadProgress.startsWith('✅') ? '#065f46' : '#1e40af',
-                fontWeight: 500,
-              }}>
-                {uploadProgress}
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => { if (!actionLoading) { setShowUploadModal(null); setUploadProgress(''); } }} style={btnSecondary} disabled={actionLoading}>
-                Close
-              </button>
-              <button type="submit" style={btnPrimary} disabled={actionLoading}>
-                {actionLoading ? 'Uploading…' : '📤 Upload to Drive'}
-              </button>
-            </div>
-          </form>
-        </ModalOverlay>
-      )}
     </div>
   );
 }
@@ -459,12 +430,6 @@ const btnSecondary: React.CSSProperties = {
   fontWeight: 600, fontSize: '14px', cursor: 'pointer',
 };
 
-const btnUpload: React.CSSProperties = {
-  background: '#1d4ed8', color: '#fff',
-  padding: '6px 10px', borderRadius: '6px', border: 'none',
-  fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-};
-
 const btnEdit: React.CSSProperties = {
   background: '#f59e0b', color: '#fff',
   padding: '6px 10px', borderRadius: '6px', border: 'none',
@@ -477,16 +442,18 @@ const btnDelete: React.CSSProperties = {
   fontSize: '13px', cursor: 'pointer',
 };
 
-const linkBtn: React.CSSProperties = {
-  background: '#f0fdf4', color: '#15803d',
-  padding: '4px 10px', borderRadius: '6px',
-  textDecoration: 'none', fontSize: '12px', fontWeight: 600,
-  border: '1px solid #bbf7d0',
+const btnCopy: React.CSSProperties = {
+  color: '#fff',
+  padding: '6px 10px', borderRadius: '6px', border: 'none',
+  fontSize: '13px', cursor: 'pointer',
+  transition: 'background 0.2s ease',
 };
 
-const iconBtn: React.CSSProperties = {
-  background: 'transparent', border: 'none',
-  cursor: 'pointer', fontSize: '16px', padding: '2px',
+const btnGenerate: React.CSSProperties = {
+  background: '#6366f1', color: '#fff',
+  padding: '10px 16px', borderRadius: '8px', border: 'none',
+  fontWeight: 600, fontSize: '13px', cursor: 'pointer',
+  whiteSpace: 'nowrap',
 };
 
 const tableStyle: React.CSSProperties = {
@@ -553,4 +520,19 @@ const modalTitle: React.CSSProperties = {
 
 const formGrid: React.CSSProperties = {
   display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px',
+};
+
+const deliverySectionStyle: React.CSSProperties = {
+  background: '#f8fafc',
+  border: '1px solid #e2e8f0',
+  borderRadius: '12px',
+  padding: '20px',
+  marginBottom: '20px',
+  marginTop: '8px',
+};
+
+const hintText: React.CSSProperties = {
+  fontSize: '12px',
+  color: 'var(--color-gray-500)',
+  marginTop: '4px',
 };
