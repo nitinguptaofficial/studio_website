@@ -100,7 +100,7 @@ export default function Home() {
           }}
             className="animate-fadeInUp"
           >
-            Welcome to Varma Studios
+            Welcome to Verma Studios
           </p>
           <h1 style={{
             fontSize: '64px',

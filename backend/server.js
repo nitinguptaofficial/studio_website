@@ -33,5 +33,5 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Varma Studios API running on port ${PORT}`);
+  console.log(`Verma Studios API running on port ${PORT}`);
 });

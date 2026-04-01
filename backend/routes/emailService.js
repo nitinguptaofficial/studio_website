@@ -17,7 +17,7 @@ async function sendAdminNotification(contactData) {
   const { name, email, phone, service, message } = contactData;
 
   const mailOptions = {
-    from: `"Varma Studios Website" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+    from: `"Verma Studios Website" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
     to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
     subject: `New Contact Form Submission from ${name}`,
     html: `
@@ -66,18 +66,18 @@ async function sendUserConfirmation(contactData) {
   const { name, email } = contactData;
 
   const mailOptions = {
-    from: `"Varma Studios" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+    from: `"Verma Studios" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
     to: email,
-    subject: `Thank you for contacting Varma Studios, ${name}!`,
+    subject: `Thank you for contacting Verma Studios, ${name}!`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: #0a0a0a; padding: 32px; text-align: center;">
-          <h1 style="color: #c9a96e; margin: 0; font-size: 24px; letter-spacing: 0.05em;">VARMA STUDIOS</h1>
+          <h1 style="color: #c9a96e; margin: 0; font-size: 24px; letter-spacing: 0.05em;">VERMA STUDIOS</h1>
         </div>
         <div style="padding: 32px; background: #ffffff; border: 1px solid #e5e5e5;">
           <h2 style="color: #333; margin-top: 0;">Hello ${name},</h2>
           <p style="color: #555; line-height: 1.7; font-size: 15px;">
-            Thank you for reaching out to Varma Studios! We have received your message and our team will review it shortly.
+            Thank you for reaching out to Verma Studios! We have received your message and our team will review it shortly.
           </p>
           <p style="color: #555; line-height: 1.7; font-size: 15px;">
             We typically respond within <strong>24 hours</strong>. If your inquiry is urgent, feel free to call us directly.
@@ -93,11 +93,11 @@ async function sendUserConfirmation(contactData) {
           </p>
           <p style="color: #555; font-size: 15px; margin-bottom: 0;">
             Warm regards,<br/>
-            <strong style="color: #333;">The Varma Studios Team</strong>
+            <strong style="color: #333;">The Verma Studios Team</strong>
           </p>
         </div>
         <div style="padding: 16px; text-align: center; color: #999; font-size: 12px;">
-          © ${new Date().getFullYear()} Varma Studios. All rights reserved.
+          © ${new Date().getFullYear()} Verma Studios. All rights reserved.
         </div>
       </div>
     `,

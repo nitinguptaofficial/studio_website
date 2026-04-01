@@ -11,11 +11,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Varma Studios | Premium Photography",
+  title: "Verma Studios | Premium Photography",
   description: "Capturing timeless moments with artistry and precision. Professional photography services for weddings, events, portraits, and commercial shoots.",
   keywords: "photography, studio, wedding, events, portraits, commercial, professional photographer",
   openGraph: {
-    title: "Varma Studios | Premium Photography",
+    title: "Verma Studios | Premium Photography",
     description: "Capturing timeless moments with artistry and precision.",
     type: "website",
   },

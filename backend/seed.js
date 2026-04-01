@@ -80,10 +80,10 @@ async function seed() {
 
   // ==================== TESTIMONIALS ====================
   const testimonials = [
-    { name: 'Priya & Rahul Sharma', event: 'Wedding Photography', quote: 'Varma Studios captured our wedding day with such grace and artistry. Every photo tells a story, and we could not be happier with the results. Truly exceptional work!', rating: 5, featured: true },
+    { name: 'Priya & Rahul Sharma', event: 'Wedding Photography', quote: 'Verma Studios captured our wedding day with such grace and artistry. Every photo tells a story, and we could not be happier with the results. Truly exceptional work!', rating: 5, featured: true },
     { name: 'Anita Desai', event: 'Corporate Event', quote: 'The team was incredibly professional and made everyone feel at ease. The corporate event photos exceeded our expectations and perfectly captured the essence of our brand.', rating: 5, featured: true },
     { name: 'Vikram Patel', event: 'Portrait Session', quote: 'My portrait session was an unforgettable experience. The attention to detail, lighting, and creative direction resulted in stunning photos I will treasure forever.', rating: 5, featured: true },
-    { name: 'Meera & Karthik', event: 'Wedding Photography', quote: 'From the pre-wedding shoot to the reception, Varma Studios was exceptional. They captured moments we did not even know happened! Highly recommended.', rating: 5, featured: false },
+    { name: 'Meera & Karthik', event: 'Wedding Photography', quote: 'From the pre-wedding shoot to the reception, Verma Studios was exceptional. They captured moments we did not even know happened! Highly recommended.', rating: 5, featured: false },
     { name: 'Deepak Innovations', event: 'Product Launch', quote: 'The product launch photos were outstanding. They really captured the energy of the event and gave us premium marketing material for months.', rating: 4, featured: false },
   ];
 
@@ -94,7 +94,7 @@ async function seed() {
 
   // ==================== TEAM MEMBERS ====================
   const teamMembers = [
-    { name: 'Arjun Varma', role: 'Lead Photographer & Founder', bio: 'With over 10 years of experience, Arjun founded Varma Studios with a vision to create art through photography. His work has been featured in leading publications.', order: 1, imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face' },
+    { name: 'Arjun Verma', role: 'Lead Photographer & Founder', bio: 'With over 10 years of experience, Arjun founded Verma Studios with a vision to create art through photography. His work has been featured in leading publications.', order: 1, imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face' },
     { name: 'Sneha Kapoor', role: 'Senior Photographer', bio: 'Specializing in portrait and fashion photography, Sneha brings a unique artistic perspective and has worked with top brands across the country.', order: 2, imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face' },
     { name: 'Ravi Mehta', role: 'Wedding Specialist', bio: 'Ravi has covered over 200 weddings and has an eye for capturing the most intimate and joyful moments of celebrations.', order: 3, imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face' },
     { name: 'Kavitha Nair', role: 'Post-Production Lead', bio: 'Kavitha ensures every image reaches its full potential through expert editing, color grading, and retouching techniques.', order: 4, imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face' },
@@ -107,7 +107,7 @@ async function seed() {
 
   // ==================== TIMELINE ====================
   const timeline = [
-    { year: '2016', title: 'Studio Founded', description: 'Varma Studios was born from a passion for storytelling through photography.', order: 1 },
+    { year: '2016', title: 'Studio Founded', description: 'Verma Studios was born from a passion for storytelling through photography.', order: 1 },
     { year: '2018', title: 'First Major Award', description: 'Recognized as "Best Emerging Photography Studio" at the National Photography Awards.', order: 2 },
     { year: '2020', title: 'Team Expansion', description: 'Grew our team to 8 talented professionals, each bringing unique expertise.', order: 3 },
     { year: '2022', title: '500+ Projects', description: 'Reached the milestone of 500 successfully completed photography projects.', order: 4 },

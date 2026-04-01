@@ -42,7 +42,7 @@ export default function Footer() {
               textTransform: 'uppercase',
               marginBottom: '16px',
             }}>
-              Varma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
+              Verma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
             </h3>
             <p style={{ fontSize: '14px', lineHeight: 1.8, marginBottom: '24px', maxWidth: '300px' }}>
               Capturing timeless moments with artistry and precision. Every frame tells a story worth remembering.
@@ -180,7 +180,7 @@ export default function Footer() {
           flexWrap: 'wrap',
           gap: '12px',
         }}>
-          <p>© {new Date().getFullYear()} Varma Studios. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Verma Studios. All rights reserved.</p>
           <p style={{ color: 'rgba(250, 250, 250, 0.4)' }}>
             Crafted with passion for photography
           </p>

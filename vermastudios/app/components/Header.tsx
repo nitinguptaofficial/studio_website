@@ -55,7 +55,7 @@ export default function Header() {
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
           }}>
-            Varma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
+            Verma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
           </span>
         </Link>
 

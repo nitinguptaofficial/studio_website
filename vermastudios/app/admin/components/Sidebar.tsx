@@ -35,7 +35,7 @@ export default function Sidebar() {
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
         }}>
-          Varma Admin
+          Verma Admin
         </h2>
       </div>
 

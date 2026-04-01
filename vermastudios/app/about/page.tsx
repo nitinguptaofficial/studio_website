@@ -86,7 +86,7 @@ export default function AboutPage() {
             </h2>
             <div className="gold-line gold-line-left" />
             <p style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--color-gray-600)', marginBottom: '20px', marginTop: '24px' }}>
-              Founded in 2016, Varma Studios has grown from a small passion project into one of the most sought-after photography studios in the region. Our philosophy is simple: every moment has a story, and every story deserves to be told beautifully.
+              Founded in 2016, Verma Studios has grown from a small passion project into one of the most sought-after photography studios in the region. Our philosophy is simple: every moment has a story, and every story deserves to be told beautifully.
             </p>
             <p style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--color-gray-600)', marginBottom: '32px' }}>
               We believe that great photography goes beyond technical perfection. It&apos;s about capturing the emotion, the atmosphere, and the authentic connections between people. Our team brings together diverse talents united by a shared passion for visual storytelling.
@@ -113,7 +113,7 @@ export default function AboutPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&h=500&fit=crop"
-              alt="Varma Studios workspace"
+              alt="Verma Studios workspace"
               style={{
                 width: '100%',
                 height: '100%',

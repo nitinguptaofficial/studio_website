@@ -140,7 +140,7 @@ export default function ContactPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Varma Studios Location"
+                  title="Verma Studios Location"
                 />
 
                 <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d346.4818952413956!2d77.05744584857997!3d28.61718546905761!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d04d7c85d7dcf%3A0x8b981693413dcb7c!2sS-3%2C%20Param%20Puri%2C%20Uttam%20Nagar%2C%20Delhi%2C%20110059!5e0!3m2!1sen!2sin!4v1774615095742!5m2!1sen!2sin" width="100%"
@@ -149,7 +149,7 @@ export default function ContactPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Varma Studios Location">
+                  title="Verma Studios Location">
                 </iframe>
               </div>
 

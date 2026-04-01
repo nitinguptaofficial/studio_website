@@ -1,6 +1,6 @@
-# Varma Studios
+# Verma Studios
 
-Varma Studios is a full-stack application built with Next.js for the frontend and Node.js/Express with Prisma on the backend.
+Verma Studios is a full-stack application built with Next.js for the frontend and Node.js/Express with Prisma on the backend.
 
 ## Project Structure
 
