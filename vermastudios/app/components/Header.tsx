@@ -31,23 +31,15 @@ export default function Header() {
 
   return (
     <header
+      className={`wavy-header ${scrolled ? 'scrolled' : ''}`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
         padding: scrolled ? '12px 0' : '20px 0',
-        background: scrolled ? 'rgba(10, 10, 10, 0.95)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
-        transition: 'all 0.3s ease',
-        borderBottom: scrolled ? '1px solid rgba(201, 169, 110, 0.15)' : 'none',
       }}
     >
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.jpeg" alt="Verma Studio Logo" style={{ height: '40px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }} />
-          <span style={{
+          <img src="/logo.jpeg" alt="Verma Studio Logo" style={{ height: '60px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }} />
+          {/* <span style={{
             fontFamily: 'var(--font-primary)',
             fontSize: '22px',
             fontWeight: 700,
@@ -56,7 +48,7 @@ export default function Header() {
             textTransform: 'uppercase',
           }}>
             VERMA STUDIO <span style={{ color: 'var(--color-gold)' }}>297</span>
-          </span>
+          </span> */}
         </Link>
 
         {/* Desktop Nav */}
@@ -69,15 +61,15 @@ export default function Header() {
                 textDecoration: 'none',
                 fontFamily: 'var(--font-primary)',
                 fontSize: '13px',
-                fontWeight: 500,
+                fontWeight: 600,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                color: pathname === link.href ? 'var(--color-gold)' : 'rgba(250, 250, 250, 0.8)',
+                color: pathname === link.href ? 'var(--color-gold)' : '#1a1a1a',
                 transition: 'color 0.3s ease',
                 position: 'relative',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-gold)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = pathname === link.href ? 'var(--color-gold)' : 'rgba(250, 250, 250, 0.8)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = pathname === link.href ? 'var(--color-gold)' : '#1a1a1a')}
             >
               {link.label}
               {pathname === link.href && (
@@ -116,7 +108,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#fafafa',
+            background: '#1a1a1a',
             transition: 'all 0.3s ease',
             transform: mobileOpen ? 'rotate(45deg) translateY(7px)' : 'none',
           }} />
@@ -124,7 +116,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#fafafa',
+            background: '#1a1a1a',
             transition: 'all 0.3s ease',
             opacity: mobileOpen ? 0 : 1,
           }} />
@@ -132,7 +124,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#fafafa',
+            background: '#1a1a1a',
             transition: 'all 0.3s ease',
             transform: mobileOpen ? 'rotate(-45deg) translateY(-7px)' : 'none',
           }} />
@@ -148,8 +140,8 @@ export default function Header() {
           alignItems: 'center',
           gap: '24px',
           padding: '32px 24px',
-          background: 'rgba(10, 10, 10, 0.98)',
-          borderTop: '1px solid rgba(201, 169, 110, 0.15)',
+          background: '#ffffff',
+          borderTop: '1px solid rgba(0, 0, 0, 0.05)',
         }}
       >
         {navLinks.map((link) => (
@@ -160,10 +152,10 @@ export default function Header() {
               textDecoration: 'none',
               fontFamily: 'var(--font-primary)',
               fontSize: '15px',
-              fontWeight: 500,
+              fontWeight: 600,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: pathname === link.href ? 'var(--color-gold)' : 'rgba(250, 250, 250, 0.8)',
+              color: pathname === link.href ? 'var(--color-gold)' : '#1a1a1a',
             }}
           >
             {link.label}
@@ -175,6 +167,35 @@ export default function Header() {
       </div>
 
       <style jsx global>{`
+        .wavy-header {
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          background: #ffffff;
+          transition: padding 0.3s ease;
+          /* Use filter drop-shadow so the shadow follows the wavy SVG contour */
+          filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05));
+        }
+        .wavy-header::after {
+          content: "";
+          position: absolute;
+          bottom: -48px;
+          left: 0;
+          width: 100%;
+          height: 48px;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 90' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M0,30 C200,80 400,0 600,45 C800,90 1000,10 1200,50 C1300,70 1380,35 1440,30 L1440,0 L0,0 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+          background-size: 100% 100%;
+          background-repeat: no-repeat;
+          pointer-events: none;
+          transform-origin: top;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+
+        .wavy-header.scrolled::after {
+          transform: scaleY(0);
+          opacity: 0;
+        }
+
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: flex !important; }

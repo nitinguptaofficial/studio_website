@@ -137,6 +137,18 @@ export default function AboutPage() {
             div[style*="grid-template-columns: 1fr 1fr"] {
               grid-template-columns: 1fr !important;
             }
+            .team-card {
+              flex-direction: column !important;
+              gap: 32px !important;
+            }
+            .team-image {
+              flex: 0 0 auto !important;
+              width: 100% !important;
+              height: 400px !important;
+            }
+            .team-text {
+              text-align: center;
+            }
           }
         `}</style>
       </section>
@@ -147,19 +159,42 @@ export default function AboutPage() {
           <div className="container">
             <SectionTitle subtitle="The Team" title="Meet Our Creative Minds" />
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '80px',
+              maxWidth: '1000px',
+              margin: '0 auto',
             }}>
-              {team.map((member) => (
-                <div key={member.id} style={{
-                  background: 'var(--color-white)',
-                  overflow: 'hidden',
-                  transition: 'all 0.3s ease',
+              {team.map((member, index) => (
+                <div key={member.id} className="team-card" style={{
+                  display: 'flex',
+                  flexDirection: index % 2 === 0 ? 'row' : 'row-reverse',
+                  alignItems: 'center',
+                  gap: '60px',
                 }}>
-                  <div style={{ position: 'relative', paddingBottom: '100%', overflow: 'hidden' }}
-                    className="img-hover-zoom"
-                  >
+                  <div className="team-text" style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: '32px', fontWeight: 600, marginBottom: '8px', color: 'var(--color-black)' }}>
+                      {member.name}
+                    </h3>
+                    <p style={{
+                      fontSize: '14px',
+                      color: 'var(--color-gold)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      marginBottom: '24px',
+                    }}>
+                      {member.role}
+                    </p>
+                    <div style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--color-gray-600)', whiteSpace: 'pre-wrap' }}>
+                      {member.bio}
+                    </div>
+                  </div>
+                  <div className="team-image" style={{ 
+                    flex: '0 0 400px', 
+                    position: 'relative', 
+                    height: '500px', 
+                    overflow: 'hidden',
+                  }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={getImageUrl(member.imageUrl)}
@@ -172,23 +207,6 @@ export default function AboutPage() {
                         objectFit: 'cover',
                       }}
                     />
-                  </div>
-                  <div style={{ padding: '28px 24px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px', color: 'var(--color-black)' }}>
-                      {member.name}
-                    </h3>
-                    <p style={{
-                      fontSize: '12px',
-                      color: 'var(--color-gold)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      marginBottom: '12px',
-                    }}>
-                      {member.role}
-                    </p>
-                    <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--color-gray-500)' }}>
-                      {member.bio}
-                    </p>
                   </div>
                 </div>
               ))}
