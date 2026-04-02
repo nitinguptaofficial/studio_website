@@ -14,15 +14,17 @@ export default function TestimonialCard({ quote, name, event, rating = 5, videoU
   return (
     <div
       style={{
-        background: 'var(--color-white)',
+        background: 'rgba(255,255,255,0.60)',
+        backdropFilter: 'blur(8px)',
         padding: '40px 32px',
         border: '1px solid var(--color-gray-200)',
+        borderLeft: '4px solid var(--color-teal)',
         position: 'relative',
         transition: 'all 0.3s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-gold)';
-        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.06)';
+        e.currentTarget.style.borderColor = 'var(--color-teal)';
+        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 191, 165, 0.10)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = 'var(--color-gray-200)';
@@ -55,7 +57,7 @@ export default function TestimonialCard({ quote, name, event, rating = 5, videoU
       {/* Stars */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
         {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} style={{ color: i < rating ? 'var(--color-gold)' : 'var(--color-gray-300)', fontSize: '14px' }}>
+          <span key={i} style={{ color: i < rating ? 'var(--color-teal)' : 'var(--color-gray-300)', fontSize: '14px' }}>
             ★
           </span>
         ))}

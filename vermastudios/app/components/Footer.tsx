@@ -18,8 +18,8 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer style={{
-      background: 'var(--color-black)',
-      color: 'rgba(250, 250, 250, 0.7)',
+      background: 'linear-gradient(135deg, #1a1240 0%, #0e2a26 60%, #12103a 100%)',
+      color: 'rgba(236, 228, 248, 0.75)',
       padding: '80px 0 0',
     }}>
       <div className="container">
@@ -40,7 +40,7 @@ export default function Footer() {
               textTransform: 'uppercase',
               marginBottom: '16px',
             }}>
-              VERMA STUDIO <span style={{ color: 'var(--color-gold)' }}>297</span>
+              VERMA STUDIO <span style={{ color: 'var(--color-teal)' }}>297</span>
             </h3>
             <p style={{ fontSize: '14px', lineHeight: 1.8, marginBottom: '24px', maxWidth: '300px' }}>
               Capturing Moments, Creating Memories. Verma Studio, established in 1991, has been a trusted name in professional photography.
@@ -64,8 +64,8 @@ export default function Footer() {
                     transition: 'all 0.3s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--color-gold)';
-                    e.currentTarget.style.background = 'var(--color-gold)';
+                    e.currentTarget.style.borderColor = 'var(--color-teal)';
+                    e.currentTarget.style.background = 'var(--color-teal)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -83,7 +83,7 @@ export default function Footer() {
             <h4 style={{
               fontSize: '14px',
               fontWeight: 600,
-              color: 'var(--color-gold)',
+              color: 'var(--color-teal)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '24px',
@@ -101,7 +101,7 @@ export default function Footer() {
                       fontSize: '14px',
                       transition: 'color 0.3s ease',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-gold)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-teal)')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(250, 250, 250, 0.6)')}
                   >
                     {link.label}
@@ -116,7 +116,7 @@ export default function Footer() {
             <h4 style={{
               fontSize: '14px',
               fontWeight: 600,
-              color: 'var(--color-gold)',
+              color: 'var(--color-teal)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '24px',
@@ -151,7 +151,7 @@ export default function Footer() {
             <h4 style={{
               fontSize: '14px',
               fontWeight: 600,
-              color: 'var(--color-gold)',
+              color: 'var(--color-teal)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '24px',

@@ -12,16 +12,27 @@ export default function SectionTitle({ title, subtitle, light = false, align = '
       marginBottom: '60px',
     }}>
       {subtitle && (
-        <p style={{
-          fontSize: '13px',
-          fontWeight: 500,
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: 'var(--color-gold)',
-          marginBottom: '12px',
-        }}>
-          {subtitle}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: align === 'center' ? 'center' : 'flex-start', marginBottom: '12px' }}>
+          <span style={{
+            display: 'inline-block',
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: 'var(--color-teal)',
+            boxShadow: '0 0 8px var(--color-teal)',
+            flexShrink: 0,
+          }} />
+          <p style={{
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'var(--color-gold)',
+            margin: 0,
+          }}>
+            {subtitle}
+          </p>
+        </div>
       )}
       <h2 style={{
         fontSize: '40px',

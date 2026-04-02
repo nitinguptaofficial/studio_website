@@ -2,8 +2,8 @@
 
 .gallery-page {
   min-height: 100vh;
-  background: #0a0a0a;
-  color: #fafafa;
+  background: #1a1240;
+  color: #ede8f2;
   font-family: var(--font-primary, 'Poppins', sans-serif);
   position: relative;
   overflow-x: hidden;
@@ -16,8 +16,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(201, 169, 110, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201, 169, 110, 0.04) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0, 191, 165, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 94, 122, 0.08) 0%, transparent 70%);
 }
 
 /* ── Access Code Screen ── */
@@ -55,7 +55,7 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #c9a96e;
+  color: var(--color-teal, #00BFA5);
   margin-bottom: 32px;
 }
 
@@ -89,15 +89,15 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  color: #fafafa;
+  color: #ede8f2;
   outline: none;
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
 .access-input:focus {
-  border-color: #c9a96e;
-  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+  border-color: #00BFA5;
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.15);
   background: rgba(255, 255, 255, 0.07);
 }
 
@@ -129,8 +129,8 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #c9a96e 0%, #b8944f 100%);
-  color: #0a0a0a;
+  background: linear-gradient(135deg, #00BFA5 0%, #8B5E7A 100%);
+  color: #f8f6fa;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -139,7 +139,7 @@
 
 .access-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(201, 169, 110, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 191, 165, 0.35);
 }
 
 .access-btn:active {
@@ -176,7 +176,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #c9a96e;
+  color: #00BFA5;
   margin-bottom: 20px;
 }
 
@@ -184,7 +184,7 @@
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, #fafafa 0%, #c9a96e 100%);
+  background: linear-gradient(135deg, #00BFA5 0%, #8B5E7A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -237,8 +237,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
-  background: linear-gradient(135deg, #c9a96e 0%, #b8944f 100%);
-  color: #0a0a0a;
+  background: linear-gradient(135deg, #00BFA5 0%, #8B5E7A 100%);
+  color: #f8f6fa;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -247,7 +247,7 @@
 
 .gallery-download-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(201, 169, 110, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 191, 165, 0.35);
 }
 
 .gallery-open-drive-btn {
@@ -262,16 +262,16 @@
   text-transform: uppercase;
   text-decoration: none;
   background: transparent;
-  color: #c9a96e;
-  border: 1px solid rgba(201, 169, 110, 0.4);
+  color: #00BFA5;
+  border: 1px solid rgba(0, 191, 165, 0.4);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .gallery-open-drive-btn:hover {
-  background: rgba(201, 169, 110, 0.1);
-  border-color: #c9a96e;
+  background: rgba(0, 191, 165, 0.1);
+  border-color: #00BFA5;
   transform: translateY(-2px);
 }
 
@@ -334,7 +334,7 @@
 .gallery-footer-divider {
   width: 40px;
   height: 1px;
-  background: rgba(201, 169, 110, 0.3);
+  background: rgba(0, 191, 165, 0.3);
   margin: 12px auto;
 }
 
@@ -356,8 +356,8 @@
 .gallery-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(201, 169, 110, 0.15);
-  border-top-color: #c9a96e;
+  border: 3px solid rgba(0, 191, 165, 0.15);
+  border-top-color: #00BFA5;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

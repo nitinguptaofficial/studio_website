@@ -11,7 +11,8 @@ export default function ServiceCard({ icon, title, description, index = 0 }: Ser
   return (
     <div
       style={{
-        background: 'var(--color-white)',
+        background: 'rgba(255,255,255,0.55)',
+        backdropFilter: 'blur(8px)',
         padding: '48px 32px',
         textAlign: 'center',
         border: '1px solid var(--color-gray-200)',
@@ -22,9 +23,9 @@ export default function ServiceCard({ icon, title, description, index = 0 }: Ser
         animationDelay: `${index * 0.1}s`,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-gold)';
+        e.currentTarget.style.borderColor = 'var(--color-teal)';
         e.currentTarget.style.transform = 'translateY(-8px)';
-        e.currentTarget.style.boxShadow = '0 20px 40px rgba(201, 169, 110, 0.15)';
+        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 191, 165, 0.18)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = 'var(--color-gray-200)';
@@ -55,14 +56,14 @@ export default function ServiceCard({ icon, title, description, index = 0 }: Ser
       }}>
         {description}
       </p>
-      {/* Gold bottom border on hover */}
+      {/* Teal bottom border on hover */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
         height: '3px',
-        background: 'var(--color-gold)',
+        background: 'var(--color-teal)',
         transform: 'scaleX(0)',
         transition: 'transform 0.3s ease',
       }}

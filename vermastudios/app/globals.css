@@ -2,40 +2,46 @@
 @import "tailwindcss";
 
 :root {
-  --color-black: #0a0a0a;
-  --color-white: #fafafa;
-  --color-gold: #c9a96e;
-  --color-gold-light: #d4ba8a;
-  --color-gold-dark: #b8944f;
-  --color-beige: #f5f0eb;
-  --color-beige-dark: #e8dfd6;
-  --color-gray-100: #f7f7f7;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
+  /* ── Peacock Feather Palette ── */
+  --color-black: #1a1240;          /* deep indigo-purple (replaces black) */
+  --color-white: #ede8f2;          /* rich lavender-tinted neutral (less white) */
+  --color-white-pure: #f8f6fa;     /* reserved for text-on-dark only */
+  --color-gold: #8B5E7A;           /* deep mauve / mulberry (primary accent) */
+  --color-gold-light: #a87899;     /* lighter mauve */
+  --color-gold-dark: #6d4560;      /* darker mauve */
+  --color-teal: #00BFA5;           /* vibrant peacock teal (secondary) */
+  --color-teal-light: #33d1bb;     /* lighter teal */
+  --color-teal-dark: #00967f;      /* deeper teal */
+  --color-beige: #f0eaf4;          /* soft lavender beige */
+  --color-beige-dark: #e0d5ea;     /* deeper lavender beige */
+  --color-gray-100: #f5f3f7;
+  --color-gray-200: #e8e3ee;
+  --color-gray-300: #d1c9dc;
+  --color-gray-400: #a89db8;
+  --color-gray-500: #7a6e8a;
+  --color-gray-600: #5c526d;
+  --color-gray-700: #3e3450;
+  --color-gray-800: #251d35;
+  --color-gray-900: #160f24;
   --font-primary: 'Poppins', sans-serif;
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(13, 17, 23, 0.07);
+  --shadow-md: 0 4px 6px -1px rgba(13, 17, 23, 0.12);
+  --shadow-lg: 0 10px 15px -3px rgba(13, 17, 23, 0.14);
+  --shadow-xl: 0 20px 25px -5px rgba(13, 17, 23, 0.16);
 }
 
 @theme inline {
   --color-background: var(--color-white);
   --color-foreground: var(--color-black);
-  --color-gold: #c9a96e;
-  --color-gold-light: #d4ba8a;
-  --color-gold-dark: #b8944f;
-  --color-beige: #f5f0eb;
-  --color-beige-dark: #e8dfd6;
+  --color-gold: #8B5E7A;
+  --color-gold-light: #a87899;
+  --color-gold-dark: #6d4560;
+  --color-teal: #00BFA5;
+  --color-beige: #f0eaf4;
+  --color-beige-dark: #e0d5ea;
   --font-sans: var(--font-primary);
 }
 
@@ -51,7 +57,7 @@ html {
 
 body {
   font-family: var(--font-primary);
-  background: var(--color-white);
+  background: #e8e2f0;   /* muted lavender — base canvas instead of white */
   color: var(--color-black);
   overflow-x: hidden;
   line-height: 1.6;
@@ -71,12 +77,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-dark {
-  background: var(--color-black);
+  background: linear-gradient(135deg, #1a1240 0%, #0e2a26 100%);
   color: var(--color-white);
 }
 
 .section-beige {
-  background: var(--color-beige);
+  background: #dfd7ea;  /* deeper lavender-beige instead of the light beige */
 }
 
 .container {
@@ -107,48 +113,54 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary {
   background: var(--color-gold);
-  color: var(--color-black);
+  color: #f8f6fa;
 }
 
 .btn-primary:hover {
   background: var(--color-gold-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(201, 169, 110, 0.3);
+  box-shadow: 0 8px 25px rgba(139, 94, 122, 0.35);
 }
 
 .btn-outline {
   background: transparent;
   color: var(--color-white);
-  border: 1px solid var(--color-gold);
+  border: 1px solid var(--color-teal);
 }
 
 .btn-outline:hover {
-  background: var(--color-gold);
+  background: var(--color-teal);
   color: var(--color-black);
   transform: translateY(-2px);
 }
 
 .btn-dark {
-  background: var(--color-black);
+  background: #0e2a26;
   color: var(--color-white);
 }
 
 .btn-dark:hover {
-  background: var(--color-gray-800);
+  background: var(--color-teal-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 25px rgba(0, 191, 165, 0.25);
 }
 
-/* ==================== GOLD ACCENT ==================== */
+/* ==================== TEAL ACCENT ==================== */
 .gold-line {
   width: 60px;
-  height: 2px;
-  background: var(--color-gold);
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-teal), var(--color-gold));
   margin: 16px auto;
+  border-radius: 2px;
 }
 
 .gold-line-left {
   margin: 16px 0;
+}
+
+/* Teal left-border accent card */
+.teal-accent-card {
+  border-left: 4px solid var(--color-teal) !important;
 }
 
 /* ==================== IMAGE HOVER ==================== */
@@ -171,8 +183,8 @@ h1, h2, h3, h4, h5, h6 {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.1) 0%,
-    rgba(0, 0, 0, 0.6) 100%
+    rgba(26, 18, 64, 0.08) 0%,
+    rgba(14, 42, 38, 0.65) 100%
   );
 }
 
@@ -334,7 +346,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-badge-shimmer {
-  background: linear-gradient(90deg, rgba(201,169,110,0.15) 25%, rgba(201,169,110,0.5) 50%, rgba(201,169,110,0.15) 75%);
+  background: linear-gradient(90deg, rgba(0,191,165,0.10) 25%, rgba(0,191,165,0.35) 50%, rgba(0,191,165,0.10) 75%);
   background-size: 200% auto;
   animation: shimmer 2.5s linear infinite;
 }
@@ -376,16 +388,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-gray-100);
+  background: #d8d0e8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gold);
+  background: var(--color-teal);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-dark);
+  background: var(--color-teal-dark);
 }
 
 /* ==================== FORM STYLES ==================== */
@@ -394,16 +406,16 @@ h1, h2, h3, h4, h5, h6 {
   padding: 16px 20px;
   font-family: var(--font-primary);
   font-size: 14px;
-  background: var(--color-gray-100);
-  border: 1px solid var(--color-gray-200);
+  background: #e8e2f0;
+  border: 1px solid var(--color-gray-300);
   color: var(--color-black);
   transition: all var(--transition-fast);
   outline: none;
 }
 
 .form-input:focus {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.1);
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.12);
 }
 
 .form-input::placeholder {
@@ -419,7 +431,7 @@ textarea.form-input {
 .lightbox-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(26, 18, 64, 0.96);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -450,9 +462,9 @@ textarea.form-input {
 }
 
 .lightbox-btn:hover {
-  background: var(--color-gold);
+  background: var(--color-teal);
   color: var(--color-black);
-  border-color: var(--color-gold);
+  border-color: var(--color-teal);
 }
 
 .lightbox-close {

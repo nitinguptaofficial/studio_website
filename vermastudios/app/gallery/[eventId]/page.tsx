@@ -220,7 +220,7 @@ export default function GalleryPage() {
                 <>
                   <a
                     id="gallery-download-btn"
-                    href={galleryData.driveFolderUrl}
+                    href={folderId ? `https://drive.google.com/uc?export=download&id=${folderId}` : galleryData.driveFolderUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="gallery-download-btn"

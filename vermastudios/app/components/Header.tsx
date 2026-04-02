@@ -64,12 +64,12 @@ export default function Header() {
                 fontWeight: 600,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                color: pathname === link.href ? 'var(--color-gold)' : '#1a1a1a',
+                color: pathname === link.href ? 'var(--color-teal)' : '#1a1a2e',
                 transition: 'color 0.3s ease',
                 position: 'relative',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-gold)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = pathname === link.href ? 'var(--color-gold)' : '#1a1a1a')}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-teal)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = pathname === link.href ? 'var(--color-teal)' : '#1a1a2e')}
             >
               {link.label}
               {pathname === link.href && (
@@ -79,7 +79,7 @@ export default function Header() {
                   left: 0,
                   right: 0,
                   height: '2px',
-                  background: 'var(--color-gold)',
+                  background: 'var(--color-teal)',
                 }} />
               )}
             </Link>
@@ -108,7 +108,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#1a1a1a',
+            background: '#1a1240',
             transition: 'all 0.3s ease',
             transform: mobileOpen ? 'rotate(45deg) translateY(7px)' : 'none',
           }} />
@@ -116,7 +116,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#1a1a1a',
+            background: '#1a1240',
             transition: 'all 0.3s ease',
             opacity: mobileOpen ? 0 : 1,
           }} />
@@ -124,7 +124,7 @@ export default function Header() {
             display: 'block',
             width: '24px',
             height: '2px',
-            background: '#1a1a1a',
+            background: '#1a1240',
             transition: 'all 0.3s ease',
             transform: mobileOpen ? 'rotate(-45deg) translateY(-7px)' : 'none',
           }} />
@@ -140,7 +140,7 @@ export default function Header() {
           alignItems: 'center',
           gap: '24px',
           padding: '32px 24px',
-          background: '#ffffff',
+          background: '#ede8f2',
           borderTop: '1px solid rgba(0, 0, 0, 0.05)',
         }}
       >
@@ -155,7 +155,7 @@ export default function Header() {
               fontWeight: 600,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: pathname === link.href ? 'var(--color-gold)' : '#1a1a1a',
+              color: pathname === link.href ? 'var(--color-teal)' : '#1a1a2e',
             }}
           >
             {link.label}
@@ -171,10 +171,9 @@ export default function Header() {
           position: sticky;
           top: 0;
           z-index: 1000;
-          background: #ffffff;
+          background: #ede8f2;
           transition: padding 0.3s ease;
-          /* Use filter drop-shadow so the shadow follows the wavy SVG contour */
-          filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05));
+          filter: drop-shadow(0 4px 10px rgba(13,17,23,0.07));
         }
         .wavy-header::after {
           content: "";
@@ -183,7 +182,7 @@ export default function Header() {
           left: 0;
           width: 100%;
           height: 48px;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 90' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M0,30 C200,80 400,0 600,45 C800,90 1000,10 1200,50 C1300,70 1380,35 1440,30 L1440,0 L0,0 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 90' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M0,30 C200,80 400,0 600,45 C800,90 1000,10 1200,50 C1300,70 1380,35 1440,30 L1440,0 L0,0 Z' fill='%23ede8f2'/%3E%3C/svg%3E");
           background-size: 100% 100%;
           background-repeat: no-repeat;
           pointer-events: none;

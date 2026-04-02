@@ -106,7 +106,7 @@ export default function Home() {
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-          background: '#0a0a0a',
+          background: '#1a1240',
         }}
       >
         {/* Animated dark gradient — sits behind the video as fallback */}
@@ -114,7 +114,7 @@ export default function Home() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(135deg, #1a0f00 0%, #0a0a0a 30%, #180c00 60%, #0a0a0a 100%)',
+            background: 'linear-gradient(135deg, #1a1240 0%, #0e2a26 30%, #1a1240 60%, #0e1a30 100%)',
             backgroundSize: '400% 400%',
             animation: 'gradientShift 12s ease infinite',
             zIndex: 0,
@@ -152,13 +152,13 @@ export default function Home() {
           }}
         />
 
-        {/* Gold vignette bottom */}
+        {/* Peacock teal vignette bottom */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(ellipse at 50% 110%, rgba(201,169,110,0.12) 0%, transparent 70%)',
+              'radial-gradient(ellipse at 50% 110%, rgba(0,191,165,0.10) 0%, transparent 70%)',
             zIndex: 2,
           }}
         />
@@ -181,7 +181,7 @@ export default function Home() {
               alignItems: 'center',
               gap: '10px',
               padding: '8px 20px',
-              border: '1px solid rgba(201,169,110,0.4)',
+              border: '1px solid rgba(0,191,165,0.45)',
               borderRadius: '100px',
               marginBottom: '28px',
             }}
@@ -191,8 +191,8 @@ export default function Home() {
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                background: 'var(--color-gold)',
-                boxShadow: '0 0 8px var(--color-gold)',
+                background: 'var(--color-teal)',
+                boxShadow: '0 0 8px var(--color-teal)',
                 display: 'inline-block',
               }}
             />
@@ -202,7 +202,7 @@ export default function Home() {
                 fontWeight: 600,
                 letterSpacing: '0.25em',
                 textTransform: 'uppercase',
-                color: 'var(--color-gold)',
+                color: 'var(--color-teal)',
               }}
             >
               Welcome to Verma Studio 297
@@ -224,7 +224,7 @@ export default function Home() {
             <br />
             <span
               style={{
-                background: 'linear-gradient(90deg, #c9a96e, #f0d5a0, #c9a96e)',
+                background: 'linear-gradient(90deg, #00BFA5, #a87899, #00BFA5)',
                 backgroundSize: '200% auto',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -277,7 +277,7 @@ export default function Home() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '6px',
-            color: 'rgba(250, 250, 250, 0.45)',
+            color: 'rgba(248, 246, 250, 0.45)',
             fontSize: '9px',
             letterSpacing: '0.3em',
             textTransform: 'uppercase',
@@ -285,9 +285,9 @@ export default function Home() {
         >
           <span>Scroll</span>
           <svg width="14" height="22" viewBox="0 0 16 24" fill="none">
-            <rect x="6" y="1" width="4" height="8" rx="2" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" />
-            <circle cx="8" cy="5" r="1.5" fill="rgba(201,169,110,0.8)" />
-            <path d="M4 16 L8 21 L12 16" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <rect x="6" y="1" width="4" height="8" rx="2" stroke="rgba(0,191,165,0.6)" strokeWidth="1.5" />
+            <circle cx="8" cy="5" r="1.5" fill="rgba(0,191,165,0.85)" />
+            <path d="M4 16 L8 21 L12 16" stroke="rgba(0,191,165,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
 
@@ -311,7 +311,7 @@ export default function Home() {
           >
             <path
               d="M0,30 C200,80 400,0 600,45 C800,90 1000,10 1200,50 C1300,70 1380,35 1440,30 L1440,90 L0,90 Z"
-              fill="#fafafa"
+              fill="#dfd7ea"
             />
           </svg>
         </div>
@@ -319,7 +319,7 @@ export default function Home() {
 
       {/* ==================== SERVICES ==================== */}
       {services.length > 0 && (
-        <section className="section" style={{ background: 'var(--color-white)', overflow: 'hidden' }}>
+        <section className="section" style={{ background: '#dfd7ea', overflow: 'hidden' }}>
           <div className="container">
             <ScrollReveal animation="fadeUp">
               <SectionTitle subtitle="What We Offer" title="Our Services" />
@@ -395,10 +395,11 @@ export default function Home() {
                       <p
                         style={{
                           fontSize: '11px',
-                          color: 'var(--color-gold)',
+                          color: 'var(--color-teal)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.15em',
                           marginBottom: '4px',
+                          fontWeight: 600,
                         }}
                       >
                         {item.category}
@@ -440,12 +441,14 @@ export default function Home() {
         ref={statsRef}
         style={{
           padding: '100px 0',
-          background: 'linear-gradient(135deg, #1a1410 0%, #0a0a0a 50%, #1a1410 100%)',
+          background: 'linear-gradient(135deg, #1a1240 0%, #0e2a26 50%, #1a1240 100%)',
           position: 'relative',
           overflow: 'hidden',
+          borderTop: '4px solid var(--color-teal)',
+          borderBottom: '4px solid var(--color-teal)',
         }}
       >
-        {/* Decorative gold orb */}
+        {/* Decorative teal orb */}
         <div
           style={{
             position: 'absolute',
@@ -455,7 +458,7 @@ export default function Home() {
             width: '600px',
             height: '600px',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(201,169,110,0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(0,191,165,0.07) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
@@ -481,7 +484,7 @@ export default function Home() {
                   style={{
                     fontSize: '56px',
                     fontWeight: 800,
-                    color: 'var(--color-gold)',
+                    color: 'var(--color-teal)',
                     lineHeight: 1,
                     marginBottom: '12px',
                     letterSpacing: '-0.02em',
@@ -492,10 +495,11 @@ export default function Home() {
                 <div
                   style={{
                     width: '30px',
-                    height: '2px',
-                    background: 'var(--color-gold)',
+                    height: '3px',
+                    background: 'var(--color-teal)',
                     margin: '0 auto 12px',
-                    opacity: 0.5,
+                    opacity: 0.7,
+                    borderRadius: '2px',
                   }}
                 />
                 <p
@@ -525,12 +529,12 @@ export default function Home() {
       </section>
 
       {/* ==================== TESTIMONIALS ==================== */}
-      <section className="section" style={{ background: 'var(--color-white)', overflow: 'hidden' }}>
+      <section className="section" style={{ background: '#e8e2f0', overflow: 'hidden' }}>
         <div className="container">
           <ScrollReveal animation="fadeUp">
             <SectionTitle subtitle="Client Stories" title="What Our Clients Say" />
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <Link href="/write-review" className="btn btn-outline" style={{ color: 'var(--color-black)', borderColor: 'var(--color-gold)' }}>
+              <Link href="/write-review" className="btn btn-outline" style={{ color: 'var(--color-black)', borderColor: 'var(--color-teal)' }}>
                 Write a Review
               </Link>
             </div>
@@ -576,15 +580,15 @@ export default function Home() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(10, 10, 10, 0.85)',
+            background: 'rgba(26, 18, 64, 0.88)',
           }}
         />
-        {/* Gold glow */}
+        {/* Teal glow */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(ellipse at 50% 50%, rgba(201,169,110,0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 50% 50%, rgba(0,191,165,0.10) 0%, transparent 70%)',
           }}
         />
         <ScrollReveal animation="fadeUp">
@@ -598,7 +602,7 @@ export default function Home() {
                 fontWeight: 600,
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: 'var(--color-gold)',
+                color: 'var(--color-teal)',
                 marginBottom: '20px',
               }}
             >
