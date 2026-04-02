@@ -25,15 +25,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB to allow short videos
   fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp/;
+    const allowed = /jpeg|jpg|png|webp|mp4|webm|mov/;
     const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowed.test(file.mimetype);
+    const mime = file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/');
     if (ext && mime) {
       cb(null, true);
     } else {
-      cb(new Error('Only JPEG, PNG, and WebP images are allowed.'));
+      cb(new Error('Only Images (JPEG, PNG, WebP) and Videos (MP4, WebM, MOV) are allowed.'));
     }
   }
 });
@@ -112,6 +112,7 @@ router.post('/', auth, upload.array('images', 5), async (req, res) => {
     if (req.files && req.files.length > 0) {
       const imageRecords = req.files.map((file, index) => ({
         url: `/uploads/portfolio/${file.filename}`,
+        type: file.mimetype.startsWith('video/') ? 'video' : 'image',
         portfolioItemId: item.id,
         order: index
       }));
@@ -159,6 +160,7 @@ router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
 
       const imageRecords = req.files.map((file, index) => ({
         url: `/uploads/portfolio/${file.filename}`,
+        type: file.mimetype.startsWith('video/') ? 'video' : 'image',
         portfolioItemId: portfolioId,
         order: index
       }));

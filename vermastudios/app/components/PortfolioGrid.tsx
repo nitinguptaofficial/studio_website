@@ -8,6 +8,7 @@ import SlideshowImage from './SlideshowImage';
 interface PortfolioImage {
   id: number;
   url: string;
+  type?: string;
 }
 
 interface PortfolioItem {
@@ -156,7 +157,7 @@ export default function PortfolioGrid({ items, showFilters = true }: PortfolioGr
       {/* Lightbox */}
       {lightboxOpen && (
         <Lightbox
-          images={filteredItems.map(item => ({ url: item.imageUrl, title: item.title }))}
+          images={filteredItems.map(item => ({ url: item.imageUrl, title: item.title, type: item.images?.[0]?.type || (item.imageUrl.match(/\.(mp4|webm|mov)$/i) ? 'video' : 'image') }))}
           currentIndex={lightboxIndex}
           onClose={() => setLightboxOpen(false)}
           onPrev={() => setLightboxIndex((prev) => (prev === 0 ? filteredItems.length - 1 : prev - 1))}

@@ -45,8 +45,8 @@ export default function Header() {
       }}
     >
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/logo.jpeg" alt="Verma Studio Logo" style={{ height: '40px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }} />
           <span style={{
             fontFamily: 'var(--font-primary)',
             fontSize: '22px',
@@ -55,7 +55,7 @@ export default function Header() {
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
           }}>
-            Verma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
+            VERMA STUDIO <span style={{ color: 'var(--color-gold)' }}>297</span>
           </span>
         </Link>
 

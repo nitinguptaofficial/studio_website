@@ -2,8 +2,10 @@
 
 import { useEffect } from 'react';
 
+import { getImageUrl } from '@/app/lib/api';
+
 interface LightboxProps {
-  images: { url: string; title: string }[];
+  images: { url: string; title: string; type?: string }[];
   currentIndex: number;
   onClose: () => void;
   onPrev: () => void;
@@ -32,18 +34,33 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
   return (
     <div className="lightbox-overlay" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: '90vw', maxHeight: '85vh' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={current.url}
-          alt={current.title}
-          className="lightbox-img"
-          style={{
-            display: 'block',
-            maxWidth: '90vw',
-            maxHeight: '85vh',
-            objectFit: 'contain',
-          }}
-        />
+        {current.type === 'video' ? (
+          <video
+            src={getImageUrl(current.url)}
+            controls
+            autoPlay
+            className="lightbox-img"
+            style={{
+              display: 'block',
+              maxWidth: '90vw',
+              maxHeight: '85vh',
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={getImageUrl(current.url)}
+            alt={current.title}
+            className="lightbox-img"
+            style={{
+              display: 'block',
+              maxWidth: '90vw',
+              maxHeight: '85vh',
+              objectFit: 'contain',
+            }}
+          />
+        )}
 
         {/* Caption */}
         <div style={{

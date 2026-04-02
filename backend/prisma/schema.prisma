@@ -33,6 +33,7 @@ model PortfolioItem {
 model PortfolioImage {
   id              Int           @id @default(autoincrement())
   url             String
+  type            String        @default("image")
   portfolioItemId Int
   portfolioItem   PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
   order           Int           @default(0)
@@ -58,6 +59,7 @@ model Testimonial {
   event     String
   quote     String
   rating    Int      @default(5)
+  videoUrl  String?
   featured  Boolean  @default(false)
   createdAt DateTime @default(now())
 }

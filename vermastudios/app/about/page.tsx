@@ -86,10 +86,10 @@ export default function AboutPage() {
             </h2>
             <div className="gold-line gold-line-left" />
             <p style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--color-gray-600)', marginBottom: '20px', marginTop: '24px' }}>
-              Founded in 2016, Verma Studios has grown from a small passion project into one of the most sought-after photography studios in the region. Our philosophy is simple: every moment has a story, and every story deserves to be told beautifully.
+              Verma Studio, established in 1991, has been a trusted name in professional photography for many years. Our experienced and dedicated team specializes in wedding photography, pre-wedding shoots, and engagement shoots.
             </p>
             <p style={{ fontSize: '15px', lineHeight: 1.9, color: 'var(--color-gray-600)', marginBottom: '32px' }}>
-              We believe that great photography goes beyond technical perfection. It&apos;s about capturing the emotion, the atmosphere, and the authentic connections between people. Our team brings together diverse talents united by a shared passion for visual storytelling.
+              We focus on understanding our clients' requirements and capturing every special moment with creativity and perfection. With high-quality work, a creative vision, and a professional team, Verma Studio is committed to turning your precious moments into beautiful and lasting memories.
             </p>
             <div style={{ display: 'flex', gap: '40px' }}>
               <div>

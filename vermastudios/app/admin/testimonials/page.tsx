@@ -10,6 +10,7 @@ interface Testimonial {
   quote: string;
   rating: number;
   featured: boolean;
+  videoUrl?: string;
   createdAt: string;
 }
 
@@ -25,6 +26,7 @@ export default function TestimonialsAdmin() {
   const [quote, setQuote] = useState('');
   const [rating, setRating] = useState('5');
   const [featured, setFeatured] = useState(true);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   const fetchTestimonials = async () => {
     try {
@@ -43,7 +45,7 @@ export default function TestimonialsAdmin() {
   }, []);
 
   const resetForm = () => {
-    setName(''); setEvent(''); setQuote(''); setRating('5'); setFeatured(true);
+    setName(''); setEvent(''); setQuote(''); setRating('5'); setFeatured(true); setVideoFile(null);
     setEditingItem(null);
   };
 
@@ -59,12 +61,19 @@ export default function TestimonialsAdmin() {
     setQuote(item.quote);
     setRating(String(item.rating));
     setFeatured(item.featured);
+    setVideoFile(null);
     setShowModal(true);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const data = { name, event, quote, rating: parseInt(rating), featured };
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('event', event);
+    formData.append('quote', quote);
+    formData.append('rating', rating);
+    formData.append('featured', String(featured));
+    if (videoFile) formData.append('video', videoFile);
     
     try {
       const url = editingItem ? `${API_URL}/testimonials/${editingItem.id}` : `${API_URL}/testimonials`;
@@ -72,8 +81,7 @@ export default function TestimonialsAdmin() {
 
       const res = await fetchWithAuth(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (res.ok) {
@@ -221,6 +229,24 @@ export default function TestimonialsAdmin() {
               <div>
                 <label style={labelStyle}>Quote *</label>
                 <textarea required value={quote} onChange={(e) => setQuote(e.target.value)} className="form-input" rows={4} style={{ padding: '10px', minHeight: '100px' }} />
+              </div>
+              <div>
+                <label style={labelStyle}>Video Review (Optional)</label>
+                {editingItem?.videoUrl && !videoFile && (
+                  <div style={{ marginBottom: '8px', fontSize: '13px', color: 'var(--color-gray-600)' }}>
+                    Current video: {editingItem.videoUrl.split('/').pop()}
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setVideoFile(e.target.files[0]);
+                    }
+                  }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-200)' }}
+                />
               </div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />

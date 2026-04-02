@@ -41,6 +41,7 @@ interface TestimonialItem {
   event: string;
   quote: string;
   rating: number;
+  videoUrl?: string;
 }
 
 import SlideshowImage from './components/SlideshowImage';
@@ -204,7 +205,7 @@ export default function Home() {
                 color: 'var(--color-gold)',
               }}
             >
-              Welcome to Verma Studios
+              Welcome to Verma Studio 297
             </span>
           </div>
 
@@ -231,9 +232,10 @@ export default function Home() {
                 animation: 'shimmer 3s linear infinite',
               }}
             >
-              Timeless
+              Moments,
             </span>{' '}
-            Moments
+            <br />
+            Creating Memories.
           </h1>
 
           <p
@@ -247,8 +249,7 @@ export default function Home() {
             }}
             className="animate-fadeInUp delay-300"
           >
-            Where every frame tells a story worth remembering. Professional photography
-            that transforms your precious moments into eternal art.
+            Verma Studio, established in 1991, has been a trusted name in professional photography. We focus on understanding our clients' requirements and capturing every special moment with creativity and perfection.
           </p>
 
           <div
@@ -524,12 +525,17 @@ export default function Home() {
       </section>
 
       {/* ==================== TESTIMONIALS ==================== */}
-      {testimonials.length > 0 && (
-        <section className="section" style={{ background: 'var(--color-white)', overflow: 'hidden' }}>
-          <div className="container">
-            <ScrollReveal animation="fadeUp">
-              <SectionTitle subtitle="Client Stories" title="What Our Clients Say" />
-            </ScrollReveal>
+      <section className="section" style={{ background: 'var(--color-white)', overflow: 'hidden' }}>
+        <div className="container">
+          <ScrollReveal animation="fadeUp">
+            <SectionTitle subtitle="Client Stories" title="What Our Clients Say" />
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <Link href="/write-review" className="btn btn-outline" style={{ color: 'var(--color-black)', borderColor: 'var(--color-gold)' }}>
+                Write a Review
+              </Link>
+            </div>
+          </ScrollReveal>
+          {testimonials.length > 0 ? (
             <div
               style={{
                 display: 'grid',
@@ -547,9 +553,11 @@ export default function Home() {
                 </ScrollReveal>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <p style={{ textAlign: 'center', color: 'var(--color-gray-500)' }}>No client stories yet. Be the first to write a review!</p>
+          )}
+        </div>
+      </section>
 
       {/* ==================== CTA BANNER ==================== */}
       <section

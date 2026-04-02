@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getImageUrl } from '@/app/lib/api';
 
 interface SlideshowImageProps {
-  images: { id: number; url: string }[];
+  images: { id: number; url: string; type?: string }[];
   fallbackUrl: string;
 }
 
@@ -33,7 +33,25 @@ export default function SlideshowImage({ images, fallbackUrl }: SlideshowImagePr
 
 
   if (!images || images.length === 0) {
-    return (
+    const isVideoFallback = fallbackUrl?.match(/\.(mp4|webm|mov)$/i);
+    return isVideoFallback ? (
+      <video
+        className="portfolio-img"
+        src={getImageUrl(fallbackUrl)}
+        autoPlay
+        muted
+        loop
+        playsInline
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transition: 'transform 0.5s ease',
+        }}
+      />
+    ) : (
       <div
         className="portfolio-img"
         style={{
@@ -58,18 +76,38 @@ export default function SlideshowImage({ images, fallbackUrl }: SlideshowImagePr
       }}
     >
       {images.map((img, index) => (
-        <div
-          key={img.id || index}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url(${getImageUrl(img.url)})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: currentIndex === index ? 1 : 0,
-            transition: 'opacity 1s ease-in-out',
-          }}
-        />
+        img.type === 'video' ? (
+          <video
+            key={img.id || index}
+            src={getImageUrl(img.url)}
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: currentIndex === index ? 1 : 0,
+              transition: 'opacity 1s ease-in-out',
+            }}
+          />
+        ) : (
+          <div
+            key={img.id || index}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${getImageUrl(img.url)})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: currentIndex === index ? 1 : 0,
+              transition: 'opacity 1s ease-in-out',
+            }}
+          />
+        )
       ))}
       
       {/* Slideshow Progress Indicators */}

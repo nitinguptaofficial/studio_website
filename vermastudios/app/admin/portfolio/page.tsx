@@ -6,6 +6,7 @@ import { API_URL, getImageUrl, fetchWithAuth } from '@/app/lib/api';
 interface PortfolioImage {
   id: number;
   url: string;
+  type: string;
 }
 
 interface PortfolioItem {
@@ -191,16 +192,24 @@ export default function PortfolioAdmin() {
                 </div>
               )}
               
-              {/* Image Preview Grid */}
+              {/* Image/Video Preview Grid */}
               <div style={{ position: 'relative', height: '180px', display: 'flex' }}>
                 {item.images && item.images.length > 0 ? (
                   <>
-                    <div style={{
-                      flex: 1,
-                      backgroundImage: `url(${getImageUrl(item.images[0]?.url || item.imageUrl)})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }} />
+                    {item.images[0]?.type === 'video' ? (
+                      <video 
+                        style={{ flex: 1, objectFit: 'cover', width: '100%' }} 
+                        src={getImageUrl(item.images[0].url)} 
+                        muted loop playsInline 
+                      />
+                    ) : (
+                      <div style={{
+                        flex: 1,
+                        backgroundImage: `url(${getImageUrl(item.images[0]?.url || item.imageUrl)})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }} />
+                    )}
                     {item.images.length > 1 && (
                       <div style={{
                         position: 'absolute',
@@ -213,13 +222,13 @@ export default function PortfolioAdmin() {
                         fontSize: '11px',
                         fontWeight: 600
                       }}>
-                        +{item.images.length - 1} Images
+                        +{item.images.length - 1} Media
                       </div>
                     )}
                   </>
                 ) : (
                   <div style={{ flex: 1, background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ color: '#9ca3af' }}>No Images</span>
+                    <span style={{ color: '#9ca3af' }}>No Media</span>
                   </div>
                 )}
               </div>
@@ -315,21 +324,30 @@ export default function PortfolioAdmin() {
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="form-input" rows={2} style={{ padding: '10px' }} />
               </div>
               <div>
-                <label style={labelStyle}>Images (Max 5) {editingItem ? '- Uploading new replaces existing' : ''}</label>
+                <label style={labelStyle}>Media (Images/Videos, Max 5) {editingItem ? '- Uploading new replaces existing' : ''}</label>
                 {editingItem?.images && editingItem.images.length > 0 && files.length === 0 && (
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
                     {editingItem.images.map(img => (
                       <div key={img.id} style={{
-                        width: '60px', height: '60px', borderRadius: '4px',
-                        backgroundImage: `url(${getImageUrl(img.url)})`, backgroundSize: 'cover', backgroundPosition: 'center'
-                      }} />
+                        width: '60px', height: '60px', borderRadius: '4px', overflow: 'hidden',
+                        position: 'relative'
+                      }}>
+                        {img.type === 'video' ? (
+                          <video src={getImageUrl(img.url)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+                        ) : (
+                          <div style={{
+                            width: '100%', height: '100%',
+                            backgroundImage: `url(${getImageUrl(img.url)})`, backgroundSize: 'cover', backgroundPosition: 'center'
+                          }} />
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
                 <input
                   type="file"
                   multiple
-                  accept="image/*"
+                  accept="image/*,video/*"
                   onChange={(e) => {
                     if (e.target.files) {
                       const selectedFiles = Array.from(e.target.files).slice(0, 5);
@@ -339,7 +357,7 @@ export default function PortfolioAdmin() {
                   style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-200)' }}
                 />
                 <p style={{ fontSize: '11px', color: 'var(--color-gray-500)', marginTop: '4px' }}>
-                  {files.length > 0 ? `${files.length} file(s) selected` : 'Select up to 5 images. These will play as a slideshow on the frontend.'}
+                  {files.length > 0 ? `${files.length} file(s) selected` : 'Select up to 5 images/videos. These will play as a slideshow on the frontend.'}
                 </p>
               </div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', cursor: 'pointer' }}>

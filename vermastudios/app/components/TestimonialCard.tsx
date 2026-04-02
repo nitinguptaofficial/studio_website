@@ -1,13 +1,16 @@
 'use client';
 
+import { getImageUrl } from '@/app/lib/api';
+
 interface TestimonialCardProps {
   quote: string;
   name: string;
   event: string;
   rating?: number;
+  videoUrl?: string;
 }
 
-export default function TestimonialCard({ quote, name, event, rating = 5 }: TestimonialCardProps) {
+export default function TestimonialCard({ quote, name, event, rating = 5, videoUrl }: TestimonialCardProps) {
   return (
     <div
       style={{
@@ -26,6 +29,17 @@ export default function TestimonialCard({ quote, name, event, rating = 5 }: Test
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
+      {/* Video */}
+      {videoUrl && (
+        <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
+          <video
+            src={getImageUrl(videoUrl)}
+            controls
+            style={{ width: '100%', display: 'block', maxHeight: '250px', objectFit: 'contain' }}
+          />
+        </div>
+      )}
+
       {/* Quote Icon */}
       <div style={{
         fontSize: '48px',

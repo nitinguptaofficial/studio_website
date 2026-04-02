@@ -11,10 +11,8 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { href: '#', label: 'Instagram', icon: '📷' },
-  { href: '#', label: 'Facebook', icon: '📘' },
-  { href: '#', label: 'Pinterest', icon: '📌' },
-  { href: '#', label: 'YouTube', icon: '▶️' },
+  { href: 'https://instagram.com/verma_studio_297', label: 'Instagram', icon: '📷' },
+  { href: 'https://youtube.com/@VERMASTUDIO297', label: 'YouTube', icon: '▶️' },
 ];
 
 export default function Footer() {
@@ -42,10 +40,10 @@ export default function Footer() {
               textTransform: 'uppercase',
               marginBottom: '16px',
             }}>
-              Verma<span style={{ color: 'var(--color-gold)' }}>Studios</span>
+              VERMA STUDIO <span style={{ color: 'var(--color-gold)' }}>297</span>
             </h3>
             <p style={{ fontSize: '14px', lineHeight: 1.8, marginBottom: '24px', maxWidth: '300px' }}>
-              Capturing timeless moments with artistry and precision. Every frame tells a story worth remembering.
+              Capturing Moments, Creating Memories. Verma Studio, established in 1991, has been a trusted name in professional photography.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
               {socialLinks.map((social) => (
@@ -127,16 +125,23 @@ export default function Footer() {
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <span style={{ color: 'var(--color-gold)', fontSize: '16px' }}>📍</span>
-                <span>123 Photography Lane,<br />Creative District, Mumbai 400001</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ color: 'var(--color-gold)', fontSize: '16px' }}>📞</span>
-                <a href="tel:+919876543210" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98765 43210</a>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <a href="tel:9810502795" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98105 02795</a>
+                  <a href="tel:9582372497" style={{ color: 'inherit', textDecoration: 'none' }}>+91 95823 72497</a>
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ color: 'var(--color-gold)', fontSize: '16px' }}>✉️</span>
-                <a href="mailto:hello@vermastudios.com" style={{ color: 'inherit', textDecoration: 'none' }}>hello@vermastudios.com</a>
+                <a href="mailto:vermastudio297@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>vermastudio297@gmail.com</a>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ color: 'var(--color-gold)', fontSize: '16px' }}>📷</span>
+                <a href="https://instagram.com/verma_studio_297" style={{ color: 'inherit', textDecoration: 'none' }}>@verma_studio_297</a>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ color: 'var(--color-gold)', fontSize: '16px' }}>▶️</span>
+                <a href="https://youtube.com/@VERMASTUDIO297" style={{ color: 'inherit', textDecoration: 'none' }}>VERMA STUDIO 297</a>
               </div>
             </div>
           </div>
@@ -180,7 +185,7 @@ export default function Footer() {
           flexWrap: 'wrap',
           gap: '12px',
         }}>
-          <p>© {new Date().getFullYear()} Verma Studios. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Verma Studio 297. All rights reserved.</p>
           <p style={{ color: 'rgba(250, 250, 250, 0.4)' }}>
             Crafted with passion for photography
           </p>
