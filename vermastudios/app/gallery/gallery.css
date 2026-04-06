@@ -442,3 +442,95 @@
     min-height: 400px;
   }
 }
+
+/* ── Main Gallery (Public Events List) ── */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.event-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 191, 165, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.event-card-banner-wrapper {
+  width: 100%;
+  height: 220px;
+  background: rgba(0,0,0,0.4);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+
+.event-card-banner-track {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  animation: bannerRoll 25s linear infinite;
+}
+
+/* Seamless loop */
+@keyframes bannerRoll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } 
+}
+
+.event-card-banner-img {
+  height: 100%;
+  width: 320px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.event-card:hover .event-card-banner-track {
+  animation-play-state: paused;
+}
+
+.event-card-body {
+  padding: 24px;
+}
+
+.event-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ede8f2;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.event-card-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-card-category {
+  background: rgba(0, 191, 165, 0.1);
+  color: #00BFA5;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

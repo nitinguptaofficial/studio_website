@@ -16,6 +16,7 @@ interface Event {
   driveFolderUrl: string | null;
   hasAccessCode: boolean;
   hasDriveFolder: boolean;
+  bannerImages?: string[];
   createdAt: string;
 }
 
@@ -45,6 +46,9 @@ export default function EventsAdminPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  
+  const [bannerFiles, setBannerFiles] = useState<File[]>([]);
+  const [bannerPreviews, setBannerPreviews] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     title: '', clientName: '', eventDate: '',
@@ -75,6 +79,8 @@ export default function EventsAdminPage() {
       driveFolderUrl: '', accessCode: '',
     });
     setGeneratedCode(null);
+    setBannerFiles([]);
+    setBannerPreviews([]);
   };
 
   const openEdit = (event: Event) => {
@@ -91,7 +97,27 @@ export default function EventsAdminPage() {
       accessCode: '',
     });
     setGeneratedCode(null);
+    setBannerFiles([]);
+    setBannerPreviews(event.bannerImages || []);
     setShowEditModal(event);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files).slice(0, 6);
+      setBannerFiles(files);
+      setBannerPreviews(files.map(f => URL.createObjectURL(f)));
+    }
+  };
+
+  const uploadBanners = async (eventId: string) => {
+    if (bannerFiles.length === 0) return;
+    const formData = new FormData();
+    bannerFiles.forEach(file => formData.append('bannerImages', file));
+    await fetchWithAuth(`${API_URL}/events/${eventId}/banner`, {
+      method: 'POST',
+      body: formData,
+    });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -110,6 +136,10 @@ export default function EventsAdminPage() {
         }),
       });
       if (!res.ok) throw new Error('Failed to create event');
+      
+      const createdEvent = await res.json();
+      await uploadBanners(createdEvent.id);
+
       await fetchEvents();
       setShowCreateModal(false);
       resetForm();
@@ -141,6 +171,9 @@ export default function EventsAdminPage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Failed to update event');
+
+      await uploadBanners(showEditModal.id);
+
       await fetchEvents();
       setShowEditModal(null);
       resetForm();
@@ -363,6 +396,30 @@ export default function EventsAdminPage() {
                   <p style={{ ...hintText, color: '#6366f1', marginTop: '4px' }}>
                     🔒 This event already has an access code set.
                   </p>
+                )}
+              </FormField>
+            </div>
+
+            {/* ── Banner Images Section ── */}
+            <div style={deliverySectionStyle}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-black)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>🖼️</span> Banner Images
+              </h3>
+              <FormField label="Event Banners (Up to 6)">
+                <input
+                  style={inputStyle}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <p style={hintText}>Select up to 6 pictures that will roll automatically on the client gallery page.</p>
+                {bannerPreviews.length > 0 && (
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    {bannerPreviews.map((src, i) => (
+                      <img key={i} src={src.startsWith('blob:') ? src : `${API_URL.replace('/api', '')}${src}`} alt="Banner preview" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc' }} />
+                    ))}
+                  </div>
                 )}
               </FormField>
             </div>

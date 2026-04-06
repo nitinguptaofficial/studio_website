@@ -97,6 +97,7 @@ model Event {
   notes          String?
   driveFolderUrl String?
   accessCode     String?
+  bannerImages   String[] @default([])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }

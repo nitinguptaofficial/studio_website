@@ -2,9 +2,39 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const auth = require('../middleware/auth');
 
 const prisma = new PrismaClient();
+
+// Configure multer storage for event banners
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '..', 'uploads', 'events');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed.'));
+    }
+  }
+});
 
 // Helper: strip sensitive fields from event response
 function sanitizeEvent(event) {
@@ -113,6 +143,29 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
+// POST /api/events/:id/banner – upload banner images (auth required)
+router.post('/:id/banner', auth, upload.array('bannerImages', 6), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+
+    if (req.files && req.files.length > 0) {
+      const bannerUrls = req.files.map(file => `/uploads/events/${file.filename}`);
+      
+      const updatedEvent = await prisma.event.update({
+        where: { id: eventId },
+        data: { bannerImages: bannerUrls },
+      });
+      return res.json(sanitizeEvent(updatedEvent));
+    }
+    res.json(sanitizeEvent(event));
+  } catch (error) {
+    console.error('Upload banner error:', error);
+    res.status(500).json({ error: 'Failed to upload banner images.' });
+  }
+});
+
 // DELETE /api/events/:id (auth required)
 router.delete('/:id', auth, async (req, res) => {
   try {
@@ -129,6 +182,27 @@ router.delete('/:id', auth, async (req, res) => {
 // ──────────────────────────────────────────────────────────────
 // PUBLIC ENDPOINTS (no auth required)
 // ──────────────────────────────────────────────────────────────
+
+// GET /api/events/public/all - get all public events without auth
+router.get('/public/all', async (req, res) => {
+  try {
+    const events = await prisma.event.findMany({
+      orderBy: { eventDate: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        clientName: true,
+        eventDate: true,
+        category: true,
+        bannerImages: true,
+      }
+    });
+    res.json(events);
+  } catch (error) {
+    console.error('Fetch public events error:', error);
+    res.status(500).json({ error: 'Failed to fetch public events.' });
+  }
+});
 
 // GET /api/events/:id/public-info – minimal info for access code screen
 router.get('/:id/public-info', async (req, res) => {
