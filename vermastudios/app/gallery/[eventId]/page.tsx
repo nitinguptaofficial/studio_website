@@ -215,30 +215,19 @@ export default function GalleryPage() {
           {/* Content */}
           <div className="gallery-content">
             {/* Action Buttons */}
-            <div className="gallery-actions">
+            <div className="gallery-actions" style={{ display: 'flex', justifyContent: 'center' }}>
               {galleryData.driveFolderUrl && (
-                <>
-                  <a
-                    id="gallery-download-btn"
-                    href={folderId ? `https://drive.google.com/uc?export=download&id=${folderId}` : galleryData.driveFolderUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="gallery-download-btn"
-                  >
-                    <span>⬇️</span>
-                    Download All Photos
-                  </a>
-                  <a
-                    id="gallery-open-drive-btn"
-                    href={galleryData.driveFolderUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="gallery-open-drive-btn"
-                  >
-                    <span>📁</span>
-                    Open in Google Drive
-                  </a>
-                </>
+                <a
+                  id="gallery-download-btn"
+                  href={galleryData.driveFolderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', fontSize: '15px' }}
+                >
+                  <span style={{ fontSize: '18px' }}>⬇️</span>
+                  Download All Photos
+                </a>
               )}
             </div>
 
@@ -264,10 +253,11 @@ export default function GalleryPage() {
                       href={galleryData.driveFolderUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="gallery-download-btn"
+                      className="btn btn-primary"
+                      style={{ marginTop: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px' }}
                     >
-                      <span>📁</span>
-                      Open Google Drive Folder
+                      <span style={{ fontSize: '16px' }}>⬇️</span>
+                      Download Photos
                     </a>
                   )}
                 </div>
