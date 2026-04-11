@@ -3,37 +3,31 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const archiver = require('archiver');
 const auth = require('../middleware/auth');
+const {
+  getDriveClient,
+  getOrCreateEventFolder,
+  uploadFileToDrive,
+  listFolderImages,
+  countFolderImages,
+  streamFolderToZip,
+  extractFolderId,
+} = require('../services/driveService');
 
 const prisma = new PrismaClient();
 
-// Configure multer storage for event banners
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '..', 'uploads', 'events');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Use memory storage — files go straight to Google Drive, not disk
 const upload = multer({
-  storage,
-  limits: { fileSize: 20 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB per file
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only images are allowed.'));
+      cb(new Error('Only image files are allowed.'));
     }
-  }
+  },
 });
 
 // Helper: strip sensitive fields from event response
@@ -43,12 +37,14 @@ function sanitizeEvent(event) {
   return { ...safe, hasAccessCode: !!accessCode, hasDriveFolder: !!event.driveFolderUrl };
 }
 
-// GET /api/events – list all events (auth required)
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN ENDPOINTS (auth required)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/events – list all events
 router.get('/', auth, async (req, res) => {
   try {
-    const events = await prisma.event.findMany({
-      orderBy: { eventDate: 'desc' },
-    });
+    const events = await prisma.event.findMany({ orderBy: { eventDate: 'desc' } });
     res.json(events.map(sanitizeEvent));
   } catch (error) {
     console.error('Fetch events error:', error);
@@ -56,12 +52,10 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// GET /api/events/:id (auth required)
+// GET /api/events/:id
 router.get('/:id', auth, async (req, res) => {
   try {
-    const event = await prisma.event.findUnique({
-      where: { id: req.params.id },
-    });
+    const event = await prisma.event.findUnique({ where: { id: req.params.id } });
     if (!event) return res.status(404).json({ error: 'Event not found.' });
     res.json(sanitizeEvent(event));
   } catch (error) {
@@ -69,7 +63,7 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// POST /api/events – create event record (auth required)
+// POST /api/events – create event record
 router.post('/', auth, async (req, res) => {
   try {
     const { title, clientName, eventDate, price, category, status, description, notes, driveFolderUrl, accessCode } = req.body;
@@ -78,7 +72,6 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ error: 'title, clientName and eventDate are required.' });
     }
 
-    // Hash access code if provided
     let hashedCode = null;
     if (accessCode && accessCode.trim()) {
       const salt = await bcrypt.genSalt(10);
@@ -107,7 +100,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// PUT /api/events/:id – update event metadata (auth required)
+// PUT /api/events/:id – update event metadata
 router.put('/:id', auth, async (req, res) => {
   try {
     const { title, clientName, eventDate, price, category, status, description, notes, driveFolderUrl, accessCode } = req.body;
@@ -125,17 +118,12 @@ router.put('/:id', auth, async (req, res) => {
       ...(driveFolderUrl !== undefined && { driveFolderUrl: driveFolderUrl || null }),
     };
 
-    // Only update access code if a new one is explicitly provided
     if (accessCode && accessCode.trim()) {
       const salt = await bcrypt.genSalt(10);
       updateData.accessCode = await bcrypt.hash(accessCode.trim(), salt);
     }
 
-    const event = await prisma.event.update({
-      where: { id: eventId },
-      data: updateData,
-    });
-
+    const event = await prisma.event.update({ where: { id: eventId }, data: updateData });
     res.json(sanitizeEvent(event));
   } catch (error) {
     console.error('Update event error:', error);
@@ -143,35 +131,10 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// POST /api/events/:id/banner – upload banner images (auth required)
-router.post('/:id/banner', auth, upload.array('bannerImages', 6), async (req, res) => {
-  try {
-    const eventId = req.params.id;
-    const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) return res.status(404).json({ error: 'Event not found.' });
-
-    if (req.files && req.files.length > 0) {
-      const bannerUrls = req.files.map(file => `/uploads/events/${file.filename}`);
-      
-      const updatedEvent = await prisma.event.update({
-        where: { id: eventId },
-        data: { bannerImages: bannerUrls },
-      });
-      return res.json(sanitizeEvent(updatedEvent));
-    }
-    res.json(sanitizeEvent(event));
-  } catch (error) {
-    console.error('Upload banner error:', error);
-    res.status(500).json({ error: 'Failed to upload banner images.' });
-  }
-});
-
-// DELETE /api/events/:id (auth required)
+// DELETE /api/events/:id
 router.delete('/:id', auth, async (req, res) => {
   try {
-    await prisma.event.delete({
-      where: { id: req.params.id },
-    });
+    await prisma.event.delete({ where: { id: req.params.id } });
     res.json({ message: 'Event deleted.' });
   } catch (error) {
     console.error('Delete event error:', error);
@@ -179,23 +142,99 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// ──────────────────────────────────────────────────────────────
-// PUBLIC ENDPOINTS (no auth required)
-// ──────────────────────────────────────────────────────────────
+// POST /api/events/:id/photos – bulk upload photos to Google Drive (auth required)
+router.post('/:id/photos', auth, upload.array('photos', 200), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files provided.' });
 
-// GET /api/events/public/all - get all public events without auth
+    const drive = getDriveClient();
+
+    // Get or create the Drive folder for this event
+    const folder = await getOrCreateEventFolder(drive, event.title, event.id);
+
+    // Upload all files concurrently in batches of 5
+    const results = [];
+    const batchSize = 5;
+    for (let i = 0; i < req.files.length; i += batchSize) {
+      const batch = req.files.slice(i, i + batchSize);
+      const batchResults = await Promise.all(
+        batch.map(file => uploadFileToDrive(drive, file.buffer, file.originalname, file.mimetype, folder.id))
+      );
+      results.push(...batchResults);
+    }
+
+    // Update event with the Drive folder URL if not already set
+    const updatedEvent = await prisma.event.update({
+      where: { id: eventId },
+      data: { driveFolderUrl: folder.webViewLink },
+    });
+
+    res.json({
+      message: `Successfully uploaded ${results.length} photo(s) to Google Drive.`,
+      folderUrl: folder.webViewLink,
+      folderId: folder.id,
+      uploadedCount: results.length,
+      event: sanitizeEvent(updatedEvent),
+    });
+  } catch (error) {
+    console.error('Photo upload error:', error);
+    res.status(500).json({ error: error.message || 'Failed to upload photos.' });
+  }
+});
+
+// POST /api/events/:id/banner – upload banner images to Google Drive (auth required)
+router.post('/:id/banner', auth, upload.array('bannerImages', 6), async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files provided.' });
+
+    const drive = getDriveClient();
+    const folder = await getOrCreateEventFolder(drive, event.title, event.id);
+
+    // Upload each banner prefixed so they are easy to identify
+    const uploadedBanners = await Promise.all(
+      req.files.map((file, i) =>
+        uploadFileToDrive(drive, file.buffer, `_banner_${i + 1}_${file.originalname}`, file.mimetype, folder.id)
+      )
+    );
+
+    // Store the direct thumbnail URLs as bannerImages
+    const bannerUrls = uploadedBanners.map(f =>
+      f.thumbnailLink
+        ? f.thumbnailLink.replace('=s220', '=s800')
+        : `https://drive.google.com/thumbnail?id=${f.id}&sz=w800`
+    );
+
+    const updatedEvent = await prisma.event.update({
+      where: { id: eventId },
+      data: {
+        bannerImages: bannerUrls,
+        driveFolderUrl: event.driveFolderUrl || folder.webViewLink,
+      },
+    });
+
+    res.json(sanitizeEvent(updatedEvent));
+  } catch (error) {
+    console.error('Banner upload error:', error);
+    res.status(500).json({ error: error.message || 'Failed to upload banner images.' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUBLIC ENDPOINTS (no auth required)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/events/public/all
 router.get('/public/all', async (req, res) => {
   try {
     const events = await prisma.event.findMany({
       orderBy: { eventDate: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        clientName: true,
-        eventDate: true,
-        category: true,
-        bannerImages: true,
-      }
+      select: { id: true, title: true, clientName: true, eventDate: true, category: true, bannerImages: true },
     });
     res.json(events);
   } catch (error) {
@@ -204,7 +243,7 @@ router.get('/public/all', async (req, res) => {
   }
 });
 
-// GET /api/events/:id/public-info – minimal info for access code screen
+// GET /api/events/:id/public-info
 router.get('/:id/public-info', async (req, res) => {
   try {
     const event = await prisma.event.findUnique({
@@ -218,35 +257,21 @@ router.get('/:id/public-info', async (req, res) => {
   }
 });
 
-// POST /api/events/:id/verify-access – verify access code & return gallery data
+// POST /api/events/:id/verify-access
 router.post('/:id/verify-access', async (req, res) => {
   try {
     const { accessCode } = req.body;
     const eventId = req.params.id;
 
-    if (!accessCode) {
-      return res.status(400).json({ error: 'Access code is required.' });
-    }
+    if (!accessCode) return res.status(400).json({ error: 'Access code is required.' });
 
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
-    });
-
-    if (!event) {
-      return res.status(404).json({ error: 'Event not found.' });
-    }
-
-    if (!event.accessCode) {
-      return res.status(403).json({ error: 'Gallery access is not configured for this event.' });
-    }
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+    if (!event.accessCode) return res.status(403).json({ error: 'Gallery access is not configured for this event.' });
 
     const isMatch = await bcrypt.compare(accessCode.trim(), event.accessCode);
+    if (!isMatch) return res.status(403).json({ error: 'Invalid access code.' });
 
-    if (!isMatch) {
-      return res.status(403).json({ error: 'Invalid access code.' });
-    }
-
-    // Return gallery-relevant data only
     res.json({
       id: event.id,
       title: event.title,
@@ -258,6 +283,82 @@ router.post('/:id/verify-access', async (req, res) => {
   } catch (error) {
     console.error('Verify access error:', error);
     res.status(500).json({ error: 'Failed to verify access.' });
+  }
+});
+
+// GET /api/events/:id/preview – returns first 30 images from Drive folder (public after token)
+router.post('/:id/preview', async (req, res) => {
+  try {
+    const { accessCode } = req.body;
+    const eventId = req.params.id;
+
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+
+    // Verify access code
+    if (event.accessCode) {
+      if (!accessCode) return res.status(403).json({ error: 'Access code required.' });
+      const isMatch = await bcrypt.compare(accessCode.trim(), event.accessCode);
+      if (!isMatch) return res.status(403).json({ error: 'Invalid access code.' });
+    }
+
+    if (!event.driveFolderUrl) {
+      return res.json({ images: [], totalCount: 0 });
+    }
+
+    const folderId = extractFolderId(event.driveFolderUrl);
+    if (!folderId) return res.status(400).json({ error: 'Invalid Drive folder URL.' });
+
+    const drive = getDriveClient();
+    const [images, totalCount] = await Promise.all([
+      listFolderImages(drive, folderId, 30),
+      countFolderImages(drive, folderId),
+    ]);
+
+    res.json({ images, totalCount });
+  } catch (error) {
+    console.error('Preview error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch preview images.' });
+  }
+});
+
+// GET /api/events/:id/download – streams a ZIP of all photos (public after token)
+router.post('/:id/download', async (req, res) => {
+  try {
+    const { accessCode } = req.body;
+    const eventId = req.params.id;
+
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+
+    // Verify access code
+    if (event.accessCode) {
+      if (!accessCode) return res.status(403).json({ error: 'Access code required.' });
+      const isMatch = await bcrypt.compare(accessCode.trim(), event.accessCode);
+      if (!isMatch) return res.status(403).json({ error: 'Invalid access code.' });
+    }
+
+    if (!event.driveFolderUrl) return res.status(400).json({ error: 'No gallery folder configured.' });
+
+    const folderId = extractFolderId(event.driveFolderUrl);
+    if (!folderId) return res.status(400).json({ error: 'Invalid Drive folder URL.' });
+
+    const safeTitle = event.title.replace(/[^a-z0-9]/gi, '_');
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}_Photos.zip"`);
+
+    const archive = archiver('zip', { zlib: { level: 5 } });
+    archive.on('error', err => { throw err; });
+    archive.pipe(res);
+
+    const drive = getDriveClient();
+    await streamFolderToZip(drive, folderId, archive);
+    await archive.finalize();
+  } catch (error) {
+    console.error('Download ZIP error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message || 'Failed to generate download.' });
+    }
   }
 });
 
