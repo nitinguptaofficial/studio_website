@@ -36,3 +36,6 @@ Thumbs.db
 # Project Specific
 backend/uploads/
 **/uploads/
+
+
+**/credentials.json
