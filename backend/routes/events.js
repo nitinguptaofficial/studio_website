@@ -203,11 +203,10 @@ router.post('/:id/banner', auth, upload.array('bannerImages', 6), async (req, re
       )
     );
 
-    // Store the direct thumbnail URLs as bannerImages
+    // Store proxy URLs as bannerImages — served through our backend
+    const apiBase = `${req.protocol}://${req.get('host')}`;
     const bannerUrls = uploadedBanners.map(f =>
-      f.thumbnailLink
-        ? f.thumbnailLink.replace('=s220', '=s800')
-        : `https://drive.google.com/thumbnail?id=${f.id}&sz=w800`
+      `${apiBase}/api/events/drive-image/${f.id}`
     );
 
     const updatedEvent = await prisma.event.update({
@@ -228,6 +227,43 @@ router.post('/:id/banner', auth, upload.array('bannerImages', 6), async (req, re
 // ─────────────────────────────────────────────────────────────────────────────
 // PUBLIC ENDPOINTS (no auth required)
 // ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/events/drive-image/:fileId – proxy images from Google Drive (public, cached)
+router.get('/drive-image/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    if (!fileId || !/^[a-zA-Z0-9_-]+$/.test(fileId)) {
+      return res.status(400).json({ error: 'Invalid file ID.' });
+    }
+
+    const drive = getDriveClient();
+
+    // Get file metadata for content type
+    const meta = await drive.files.get({
+      fileId,
+      fields: 'mimeType, name',
+      supportsAllDrives: true,
+    });
+
+    // Stream the file content
+    const fileStream = await drive.files.get(
+      { fileId, alt: 'media', supportsAllDrives: true },
+      { responseType: 'stream' }
+    );
+
+    // Set headers for caching and content type
+    res.setHeader('Content-Type', meta.data.mimeType || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    fileStream.data.pipe(res);
+  } catch (error) {
+    console.error('Drive image proxy error:', error.message);
+    if (!res.headersSent) {
+      res.status(error.code === 404 ? 404 : 500).json({ error: 'Failed to load image.' });
+    }
+  }
+});
 
 // GET /api/events/public/all
 router.get('/public/all', async (req, res) => {

@@ -191,12 +191,16 @@ async function listFolderImages(drive, folderId, limit = 30) {
     ..._sharedDriveFlags(),
   });
 
-  return response.data.files.map(f => ({
+  // Build proxy base URL from environment
+  const apiBase = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.replace(':3000', `:${process.env.PORT || 5000}`) : `http://localhost:${process.env.PORT || 5000}`;
+
+  return response.data.files
+    .filter(f => !f.name.startsWith('_banner_')) // exclude banner files from gallery
+    .map(f => ({
     id: f.id,
     name: f.name,
-    thumbnailUrl: f.thumbnailLink
-      ? f.thumbnailLink.replace('=s220', '=s800')
-      : `https://drive.google.com/thumbnail?id=${f.id}&sz=w800`,
+    // Proxy images through our backend to avoid CORS/auth issues
+    thumbnailUrl: `${apiBase}/api/events/drive-image/${f.id}`,
     downloadUrl: `https://drive.google.com/uc?export=download&id=${f.id}`,
   }));
 }
