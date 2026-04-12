@@ -56,11 +56,19 @@ export default function EventsAdminPage() {
   const [uploadDone, setUploadDone] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
+  // Inline photo upload state (inside create/edit form)
+  const [inlinePhotoFiles, setInlinePhotoFiles] = useState<File[]>([]);
+  const [inlineUploadProgress, setInlineUploadProgress] = useState<string>('');
+  const [inlineUploadDone, setInlineUploadDone] = useState(false);
+  const [inlineUploadPercent, setInlineUploadPercent] = useState(0);
+  const [inlineUploadStats, setInlineUploadStats] = useState<{ uploaded: number; failed: number; total: number; eta: string; speed: string } | null>(null);
+  const inlinePhotoInputRef = useRef<HTMLInputElement>(null);
+  const uploadAbortRef = useRef(false);
+
   const [form, setForm] = useState({
     title: '', clientName: '', eventDate: '',
     price: '', category: '', status: 'upcoming',
-    description: '', notes: '',
-    driveFolderUrl: '', accessCode: '',
+    description: '', notes: '', accessCode: '',
   });
 
   const fetchEvents = useCallback(async () => {
@@ -78,10 +86,17 @@ export default function EventsAdminPage() {
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   const resetForm = () => {
-    setForm({ title: '', clientName: '', eventDate: '', price: '', category: '', status: 'upcoming', description: '', notes: '', driveFolderUrl: '', accessCode: '' });
+    setForm({ title: '', clientName: '', eventDate: '', price: '', category: '', status: 'upcoming', description: '', notes: '', accessCode: '' });
     setGeneratedCode(null);
     setBannerFiles([]);
     setBannerPreviews([]);
+    setInlinePhotoFiles([]);
+    setInlineUploadProgress('');
+    setInlineUploadDone(false);
+    setInlineUploadPercent(0);
+    setInlineUploadStats(null);
+    uploadAbortRef.current = false;
+    if (inlinePhotoInputRef.current) inlinePhotoInputRef.current.value = '';
   };
 
   const openEdit = (event: Event) => {
@@ -90,12 +105,18 @@ export default function EventsAdminPage() {
       eventDate: event.eventDate.split('T')[0],
       price: event.price || '', category: event.category || '',
       status: event.status, description: event.description || '',
-      notes: event.notes || '', driveFolderUrl: event.driveFolderUrl || '',
+      notes: event.notes || '',
       accessCode: '',
     });
     setGeneratedCode(null);
     setBannerFiles([]);
     setBannerPreviews(event.bannerImages || []);
+    setInlinePhotoFiles([]);
+    setInlineUploadProgress('');
+    setInlineUploadDone(false);
+    setInlineUploadPercent(0);
+    setInlineUploadStats(null);
+    uploadAbortRef.current = false;
     setShowEditModal(event);
   };
 
@@ -114,6 +135,92 @@ export default function EventsAdminPage() {
     await fetchWithAuth(`${API_URL}/events/${eventId}/banner`, { method: 'POST', body: formData });
   };
 
+  const handleInlinePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setInlinePhotoFiles(Array.from(e.target.files));
+      setInlineUploadDone(false);
+      setInlineUploadProgress('');
+      setInlineUploadPercent(0);
+    }
+  };
+
+  const uploadInlinePhotos = async (eventId: string) => {
+    if (inlinePhotoFiles.length === 0) return;
+    const BATCH_SIZE = 10; // Small batches to avoid memory issues with large uploads
+    const MAX_RETRIES = 3;
+    const totalFiles = inlinePhotoFiles.length;
+    const totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
+    let uploaded = 0;
+    let failed = 0;
+    const failedFiles: string[] = [];
+    const startTime = Date.now();
+    uploadAbortRef.current = false;
+
+    setInlineUploadProgress(`🚀 Starting upload of ${totalFiles.toLocaleString()} photo(s) in ${totalBatches} batches...`);
+    setInlineUploadPercent(0);
+    setInlineUploadStats({ uploaded: 0, failed: 0, total: totalFiles, eta: 'Calculating...', speed: '—' });
+
+    for (let i = 0; i < totalFiles; i += BATCH_SIZE) {
+      if (uploadAbortRef.current) {
+        setInlineUploadProgress(`⚠️ Upload cancelled. ${uploaded} of ${totalFiles} photos uploaded.`);
+        setInlineUploadStats(prev => prev ? { ...prev, uploaded, failed } : null);
+        return;
+      }
+
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+      const batch = inlinePhotoFiles.slice(i, i + BATCH_SIZE);
+      let success = false;
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const formData = new FormData();
+          batch.forEach(f => formData.append('photos', f));
+          setInlineUploadProgress(`📤 Batch ${batchNum}/${totalBatches} (attempt ${attempt > 1 ? attempt + '/' + MAX_RETRIES : '1'}) — ${batch.length} files...`);
+
+          const res = await fetchWithAuth(`${API_URL}/events/${eventId}/photos`, { method: 'POST', body: formData });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `Batch ${batchNum} failed`);
+          }
+          success = true;
+          break;
+        } catch (err) {
+          if (attempt === MAX_RETRIES) {
+            console.error(`Batch ${batchNum} failed after ${MAX_RETRIES} retries:`, err);
+            failed += batch.length;
+            failedFiles.push(...batch.map(f => f.name));
+          } else {
+            // Wait before retry (exponential backoff: 1s, 2s, 4s)
+            await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
+          }
+        }
+      }
+
+      if (success) uploaded += batch.length;
+
+      const pct = Math.round(((uploaded + failed) / totalFiles) * 100);
+      const elapsed = (Date.now() - startTime) / 1000;
+      const rate = uploaded / elapsed; // files per second
+      const remaining = totalFiles - uploaded - failed;
+      const etaSec = rate > 0 ? Math.round(remaining / rate) : 0;
+      const etaStr = etaSec > 60 ? `${Math.floor(etaSec / 60)}m ${etaSec % 60}s` : `${etaSec}s`;
+      const speedStr = rate > 0 ? `${rate.toFixed(1)} photos/sec` : '—';
+
+      setInlineUploadPercent(pct);
+      setInlineUploadStats({ uploaded, failed, total: totalFiles, eta: remaining > 0 ? etaStr : 'Done', speed: speedStr });
+      setInlineUploadProgress(`📤 Uploaded ${uploaded.toLocaleString()} / ${totalFiles.toLocaleString()} photos (${pct}%)${failed > 0 ? ` • ${failed} failed` : ''}`);
+    }
+
+    if (failed > 0) {
+      setInlineUploadProgress(`⚠️ Upload complete: ${uploaded.toLocaleString()} succeeded, ${failed} failed. Failed: ${failedFiles.slice(0, 5).join(', ')}${failedFiles.length > 5 ? '...' : ''}`);
+    } else {
+      setInlineUploadProgress(`✅ All ${totalFiles.toLocaleString()} photos uploaded successfully!`);
+    }
+    setInlineUploadDone(true);
+    setInlinePhotoFiles([]);
+    if (inlinePhotoInputRef.current) inlinePhotoInputRef.current.value = '';
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionLoading(true);
@@ -121,11 +228,12 @@ export default function EventsAdminPage() {
       const res = await fetchWithAuth(`${API_URL}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, price: form.price || null, category: form.category || null, driveFolderUrl: form.driveFolderUrl || null, accessCode: form.accessCode || null }),
+        body: JSON.stringify({ ...form, price: form.price || null, category: form.category || null, accessCode: form.accessCode || null }),
       });
       if (!res.ok) throw new Error('Failed to create event');
       const createdEvent = await res.json();
       await uploadBanners(createdEvent.id);
+      await uploadInlinePhotos(createdEvent.id);
       await fetchEvents();
       setShowCreateModal(false);
       resetForm();
@@ -142,7 +250,7 @@ export default function EventsAdminPage() {
     setActionLoading(true);
     try {
       const payload: Record<string, unknown> = {
-        ...form, price: form.price || null, category: form.category || null, driveFolderUrl: form.driveFolderUrl || null,
+        ...form, price: form.price || null, category: form.category || null,
       };
       if (form.accessCode.trim()) payload.accessCode = form.accessCode.trim();
       const res = await fetchWithAuth(`${API_URL}/events/${showEditModal.id}`, {
@@ -150,6 +258,7 @@ export default function EventsAdminPage() {
       });
       if (!res.ok) throw new Error('Failed to update event');
       await uploadBanners(showEditModal.id);
+      await uploadInlinePhotos(showEditModal.id);
       await fetchEvents();
       setShowEditModal(null);
       resetForm();
@@ -369,10 +478,6 @@ export default function EventsAdminPage() {
 
             <div style={sectionBox}>
               <h3 style={sectionTitle}>📸 Photo Delivery</h3>
-              <FormField label="Google Drive Folder URL (optional — auto-created on upload)">
-                <input style={inputStyle} value={form.driveFolderUrl} onChange={e => setForm(p => ({ ...p, driveFolderUrl: e.target.value }))} placeholder="https://drive.google.com/drive/folders/..." />
-                <p style={hintText}>Leave blank if you plan to upload photos via the ☁️ button — a folder will be created automatically.</p>
-              </FormField>
               <FormField label={showEditModal ? 'New Access Code (leave blank to keep current)' : 'Client Access Code'}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input style={{ ...inputStyle, flex: 1 }} value={form.accessCode} onChange={e => { setForm(p => ({ ...p, accessCode: e.target.value })); setGeneratedCode(null); }} placeholder={showEditModal ? '(leave blank to keep current)' : 'e.g. A3X9K2'} />
@@ -393,7 +498,6 @@ export default function EventsAdminPage() {
               <h3 style={sectionTitle}>🖼️ Banner Images (Up to 6)</h3>
               <FormField label="Select Banner Photos">
                 <input style={inputStyle} type="file" multiple accept="image/*" onChange={handleBannerFileChange} />
-                <p style={hintText}>These scroll automatically as the event card banner on the public gallery page. Uploaded to Google Drive.</p>
                 {bannerPreviews.length > 0 && (
                   <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                     {bannerPreviews.map((src, i) => (
@@ -404,10 +508,124 @@ export default function EventsAdminPage() {
               </FormField>
             </div>
 
+            <div style={sectionBox}>
+              <h3 style={sectionTitle}>☁️ Upload Event Photos to Google Drive</h3>
+              <FormField label="Select Photos">
+                <div
+                  style={{
+                    border: `2px dashed ${inlinePhotoFiles.length > 0 ? '#10b981' : '#cbd5e1'}`,
+                    borderRadius: '12px',
+                    padding: '32px 24px',
+                    textAlign: 'center',
+                    background: inlinePhotoFiles.length > 0 ? 'linear-gradient(135deg, #f0fdf4, #ecfdf5)' : '#fafbfc',
+                    transition: 'all 0.2s ease',
+                    cursor: actionLoading ? 'not-allowed' : 'pointer',
+                    opacity: actionLoading ? 0.6 : 1,
+                  }}
+                  onClick={() => !actionLoading && inlinePhotoInputRef.current?.click()}
+                >
+                  <input
+                    ref={inlinePhotoInputRef}
+                    style={{ display: 'none' }}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleInlinePhotoFileChange}
+                    disabled={actionLoading}
+                  />
+                  <div style={{ fontSize: '36px', marginBottom: '8px' }}>
+                    {inlinePhotoFiles.length > 0 ? '✅' : '📁'}
+                  </div>
+                  <p style={{ fontSize: '15px', fontWeight: 600, color: inlinePhotoFiles.length > 0 ? '#065f46' : 'var(--color-gray-600)', marginBottom: '4px' }}>
+                    {inlinePhotoFiles.length > 0
+                      ? `${inlinePhotoFiles.length.toLocaleString()} photo(s) selected`
+                      : 'Click to select photos'}
+                  </p>
+                  <p style={{ fontSize: '12px', color: 'var(--color-gray-400)' }}>
+                    JPG, PNG, WEBP • Max 25 MB per file • Up to 10,000 images
+                  </p>
+                </div>
+
+                {/* Selection info bar */}
+                {inlinePhotoFiles.length > 0 && !actionLoading && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px', padding: '8px 12px', borderRadius: '8px', background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                    <span style={{ fontSize: '13px', color: '#065f46', fontWeight: 600 }}>
+                      📷 {inlinePhotoFiles.length.toLocaleString()} photo{inlinePhotoFiles.length !== 1 ? 's' : ''} ready
+                      {inlinePhotoFiles.length > 100 && ` • ${Math.ceil(inlinePhotoFiles.length / 10)} batches`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setInlinePhotoFiles([]); if (inlinePhotoInputRef.current) inlinePhotoInputRef.current.value = ''; }}
+                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
+                    >
+                      ✕ Clear
+                    </button>
+                  </div>
+                )}
+
+                {/* Upload progress panel */}
+                {inlineUploadProgress && (
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: inlineUploadDone ? (inlineUploadStats && inlineUploadStats.failed > 0 ? '#fef3c7' : '#d1fae5') : '#eff6ff',
+                    border: `1px solid ${inlineUploadDone ? (inlineUploadStats && inlineUploadStats.failed > 0 ? '#fcd34d' : '#6ee7b7') : '#bfdbfe'}`,
+                  }}>
+                    <p style={{ fontSize: '13px', color: inlineUploadDone ? (inlineUploadStats && inlineUploadStats.failed > 0 ? '#92400e' : '#065f46') : '#1e40af', fontWeight: 600, marginBottom: '8px' }}>
+                      {inlineUploadProgress}
+                    </p>
+
+                    {/* Progress bar */}
+                    {!inlineUploadDone && (
+                      <div style={{ width: '100%', height: '8px', background: '#dbeafe', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
+                        <div style={{
+                          width: `${inlineUploadPercent}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #6366f1)',
+                          borderRadius: '4px',
+                          transition: 'width 0.4s ease',
+                        }} />
+                      </div>
+                    )}
+
+                    {/* Stats row */}
+                    {inlineUploadStats && (
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '12px', color: inlineUploadDone ? '#065f46' : '#3b82f6' }}>
+                        <span>✅ {inlineUploadStats.uploaded.toLocaleString()} uploaded</span>
+                        {inlineUploadStats.failed > 0 && <span style={{ color: '#ef4444' }}>❌ {inlineUploadStats.failed} failed</span>}
+                        <span>📊 {inlineUploadStats.total.toLocaleString()} total</span>
+                        {!inlineUploadDone && <span>⚡ {inlineUploadStats.speed}</span>}
+                        {!inlineUploadDone && <span>⏱️ ETA: {inlineUploadStats.eta}</span>}
+                      </div>
+                    )}
+
+                    {/* Cancel upload button */}
+                    {!inlineUploadDone && actionLoading && (
+                      <button
+                        type="button"
+                        onClick={() => { uploadAbortRef.current = true; }}
+                        style={{ marginTop: '10px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        ⏹ Cancel Upload
+                      </button>
+                    )}
+                  </div>
+                )}
+                <p style={{ ...hintText, marginTop: '8px' }}>
+                  💡 Photos are uploaded in batches of 10 with automatic retry. A Google Drive folder is auto-created.
+                </p>
+              </FormField>
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => { setShowCreateModal(false); setShowEditModal(null); resetForm(); }} style={btnSecondary}>Cancel</button>
-              <button type="submit" style={btnPrimary} disabled={actionLoading}>
-                {actionLoading ? 'Saving…' : showCreateModal ? 'Create Event' : 'Save Changes'}
+              <button type="button" onClick={() => { if (actionLoading) { uploadAbortRef.current = true; } setShowCreateModal(false); setShowEditModal(null); resetForm(); }} style={btnSecondary}>{actionLoading ? 'Cancel Upload & Close' : 'Cancel'}</button>
+              <button type="submit" style={{ ...btnPrimary, ...(inlinePhotoFiles.length > 0 && !actionLoading ? { background: 'linear-gradient(135deg, #059669, #0d9488)', minWidth: '200px' } : {}) }} disabled={actionLoading}>
+                {actionLoading
+                  ? (inlineUploadProgress && !inlineUploadDone ? '⏳ Uploading Photos…' : 'Saving…')
+                  : inlinePhotoFiles.length > 0
+                    ? `${showCreateModal ? 'Create' : 'Save'} & Upload ${inlinePhotoFiles.length.toLocaleString()} Photos`
+                    : showCreateModal ? 'Create Event' : 'Save Changes'}
               </button>
             </div>
           </form>

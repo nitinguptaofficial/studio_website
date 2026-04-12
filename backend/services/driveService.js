@@ -3,18 +3,66 @@ const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
 
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ * GOOGLE DRIVE AUTH — Dual-mode authentication
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Set GOOGLE_DRIVE_AUTH_MODE in .env:
+ *
+ *   "oauth"           → Personal Gmail account (OAuth2 + refresh token)
+ *   "service_account" → Google Workspace / Business (Service Account + Shared Drive)
+ *
+ * See DRIVE-SETUP.md for full setup instructions.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+const AUTH_MODE = (process.env.GOOGLE_DRIVE_AUTH_MODE || 'oauth').toLowerCase();
+const IS_SERVICE_ACCOUNT = AUTH_MODE === 'service_account';
+
 /**
  * Returns an authenticated Google Drive client.
- * Authentication is handled via a service account credentials.json file
- * placed in the /backend directory.
+ * Automatically selects OAuth2 or Service Account based on GOOGLE_DRIVE_AUTH_MODE.
  */
 function getDriveClient() {
+  if (IS_SERVICE_ACCOUNT) {
+    return _getServiceAccountClient();
+  }
+  return _getOAuthClient();
+}
+
+/* ── OAuth2 (Personal Gmail) ──────────────────────────────────────────────── */
+
+function _getOAuthClient() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error(
+      'Google Drive OAuth credentials not configured. ' +
+      'Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN in .env. ' +
+      'Run "node setup-drive-oauth.js" to generate the refresh token. ' +
+      'See DRIVE-SETUP.md for instructions.'
+    );
+  }
+
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+
+  return google.drive({ version: 'v3', auth: oauth2Client });
+}
+
+/* ── Service Account (Google Workspace) ───────────────────────────────────── */
+
+function _getServiceAccountClient() {
   const credentialsPath = path.join(__dirname, '..', 'credentials.json');
 
   if (!fs.existsSync(credentialsPath)) {
     throw new Error(
-      'Google Drive credentials.json not found. Please place your service account credentials file in the /backend directory. ' +
-      'See the walkthrough for instructions on how to generate it.'
+      'Google Drive credentials.json not found. ' +
+      'Place your service account key file at /backend/credentials.json. ' +
+      'See DRIVE-SETUP.md for instructions.'
     );
   }
 
@@ -26,9 +74,30 @@ function getDriveClient() {
   return google.drive({ version: 'v3', auth });
 }
 
+/* ── Shared Drive helper flags ────────────────────────────────────────────── */
+
+// Service accounts upload to Shared Drives, so every API call needs these flags.
+// OAuth users upload to their personal "My Drive", so these flags are not needed.
+function _sharedDriveFlags() {
+  if (!IS_SERVICE_ACCOUNT) return {};
+  return {
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  };
+}
+
+function _sharedDriveCreateFlags() {
+  if (!IS_SERVICE_ACCOUNT) return {};
+  return { supportsAllDrives: true };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* DRIVE OPERATIONS                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 /**
  * Gets or creates a Google Drive folder for the given event.
- * The root folder ID is read from GOOGLE_DRIVE_ROOT_FOLDER_ID in .env
+ * Root folder ID is read from GOOGLE_DRIVE_ROOT_FOLDER_ID in .env.
  */
 async function getOrCreateEventFolder(drive, eventTitle, eventId) {
   const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
@@ -39,6 +108,8 @@ async function getOrCreateEventFolder(drive, eventTitle, eventId) {
     q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false${rootFolderId ? ` and '${rootFolderId}' in parents` : ''}`,
     fields: 'files(id, name, webViewLink)',
     spaces: 'drive',
+    ..._sharedDriveFlags(),
+    ...(IS_SERVICE_ACCOUNT && rootFolderId && { corpora: 'allDrives' }),
   });
 
   if (searchResponse.data.files.length > 0) {
@@ -55,13 +126,19 @@ async function getOrCreateEventFolder(drive, eventTitle, eventId) {
   const folder = await drive.files.create({
     resource: folderMeta,
     fields: 'id, name, webViewLink',
+    ..._sharedDriveCreateFlags(),
   });
 
   // Make folder publicly readable
-  await drive.permissions.create({
-    fileId: folder.data.id,
-    resource: { role: 'reader', type: 'anyone' },
-  });
+  try {
+    await drive.permissions.create({
+      fileId: folder.data.id,
+      resource: { role: 'reader', type: 'anyone' },
+      ..._sharedDriveCreateFlags(),
+    });
+  } catch (permErr) {
+    console.warn('Could not set public permissions on folder:', permErr.message);
+  }
 
   return folder.data;
 }
@@ -84,20 +161,26 @@ async function uploadFileToDrive(drive, fileBuffer, fileName, mimeType, folderId
       body: bufferStream,
     },
     fields: 'id, name, webViewLink, thumbnailLink, webContentLink',
+    ..._sharedDriveCreateFlags(),
   });
 
   // Make the file publicly readable
-  await drive.permissions.create({
-    fileId: response.data.id,
-    resource: { role: 'reader', type: 'anyone' },
-  });
+  try {
+    await drive.permissions.create({
+      fileId: response.data.id,
+      resource: { role: 'reader', type: 'anyone' },
+      ..._sharedDriveCreateFlags(),
+    });
+  } catch (permErr) {
+    console.warn('Could not set public permissions on file:', permErr.message);
+  }
 
   return response.data;
 }
 
 /**
  * Lists up to `limit` image files in a Google Drive folder.
- * Returns an array of { id, name, thumbnailLink, webContentLink }
+ * Returns an array of { id, name, thumbnailUrl, downloadUrl }
  */
 async function listFolderImages(drive, folderId, limit = 30) {
   const response = await drive.files.list({
@@ -105,12 +188,12 @@ async function listFolderImages(drive, folderId, limit = 30) {
     fields: 'files(id, name, thumbnailLink, webContentLink, mimeType)',
     pageSize: limit,
     orderBy: 'name',
+    ..._sharedDriveFlags(),
   });
 
   return response.data.files.map(f => ({
     id: f.id,
     name: f.name,
-    // Use thumbnail for fast loading in the gallery grid
     thumbnailUrl: f.thumbnailLink
       ? f.thumbnailLink.replace('=s220', '=s800')
       : `https://drive.google.com/thumbnail?id=${f.id}&sz=w800`,
@@ -126,16 +209,15 @@ async function countFolderImages(drive, folderId) {
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
     fields: 'files(id)',
     pageSize: 1000,
+    ..._sharedDriveFlags(),
   });
   return response.data.files.length;
 }
 
 /**
  * Streams all images from a folder through archiver into a ZIP.
- * Takes an archiver instance and adds files to it.
  */
 async function streamFolderToZip(drive, folderId, archive) {
-  // Fetch all image files in the folder
   let allFiles = [];
   let nextPageToken = null;
 
@@ -144,16 +226,16 @@ async function streamFolderToZip(drive, folderId, archive) {
       q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
       fields: 'nextPageToken, files(id, name, mimeType)',
       pageSize: 100,
+      ..._sharedDriveFlags(),
       ...(nextPageToken && { pageToken: nextPageToken }),
     });
     allFiles = allFiles.concat(response.data.files);
     nextPageToken = response.data.nextPageToken;
   } while (nextPageToken);
 
-  // Stream each file into the archive
   for (const file of allFiles) {
     const fileStream = await drive.files.get(
-      { fileId: file.id, alt: 'media' },
+      { fileId: file.id, alt: 'media', ..._sharedDriveCreateFlags() },
       { responseType: 'stream' }
     );
     archive.append(fileStream.data, { name: file.name });
