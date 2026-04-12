@@ -39,7 +39,7 @@ export default function Header() {
     >
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.jpeg" alt="Verma Studio Logo" style={{ height: '60px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }} />
+          <img src="/logo.png" alt="Verma Studio Logo" style={{ height: '60px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }} />
           {/* <span style={{
             fontFamily: 'var(--font-primary)',
             fontSize: '22px',
@@ -85,7 +85,7 @@ export default function Header() {
               )}
             </Link>
           ))}
-          <Link href="/contact" className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '12px' }}>
+          <Link href="/contact" className="bg-[#00637C] text-white" style={{ padding: '10px 24px', fontSize: '12px' }}>
             Book a Session
           </Link>
         </nav>
@@ -162,7 +162,7 @@ export default function Header() {
             {link.label}
           </Link>
         ))}
-        <Link href="/contact" className="btn btn-primary" style={{ marginTop: '8px' }}>
+        <Link href="/contact" className="bg-[#00637C] text-white text-[20px]" style={{ marginTop: '8px' }}>
           Book a Session
         </Link>
       </div>

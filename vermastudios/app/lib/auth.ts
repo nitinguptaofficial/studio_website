@@ -1,7 +1,7 @@
 // Authentication utilities for frontend
 
-const TOKEN_KEY = 'vermastudios_admin_token';
-const USERNAME_KEY = 'vermastudios_admin_username';
+const TOKEN_KEY = 'vermastudio_admin_token';
+const USERNAME_KEY = 'vermastudio_admin_username';
 
 export const setAuthToken = (token: string, username: string) => {
   if (typeof window !== 'undefined') {

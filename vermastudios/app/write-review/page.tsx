@@ -141,7 +141,7 @@ export default function WriteReviewPage() {
                       <textarea
                         required
                         className="form-input"
-                        placeholder="Tell us about your experience with Verma Studios..."
+                        placeholder="Tell us about your experience with Verma Studio..."
                         value={formData.quote}
                         onChange={e => setFormData({ ...formData, quote: e.target.value })}
                         style={{ minHeight: '150px' }}

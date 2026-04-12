@@ -212,7 +212,7 @@ export default function Home() {
           <h1
             style={{
               fontSize: 'clamp(42px, 7vw, 80px)',
-              fontWeight: 800,
+              fontWeight: 500,
               color: '#fafafa',
               lineHeight: 1.05,
               marginBottom: '28px',
@@ -256,10 +256,10 @@ export default function Home() {
             style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}
             className="animate-fadeInUp delay-400"
           >
-            <Link href="/contact" className="btn btn-primary" style={{ borderRadius: '2px', padding: '16px 40px' }}>
+            <Link href="/contact" className="bg-[#00637C] text-white text-[20px]" style={{ borderRadius: '2px', padding: '16px 40px' }}>
               Book a Session
             </Link>
-            <Link href="/work" className="btn btn-outline" style={{ borderRadius: '2px', padding: '16px 40px' }}>
+            <Link href="/work" className="bg-white text-[#00637C] text-[20px]" style={{ borderRadius: '2px', padding: '16px 40px' }}>
               View Portfolio
             </Link>
           </div>

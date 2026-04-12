@@ -172,7 +172,7 @@ export default function GalleryPage() {
         <div className="gallery-ambient" />
         <div className="access-screen">
           <div className="access-card">
-            <p className="access-logo">Verma Studios</p>
+            <p className="access-logo">Verma Studio</p>
             <h1 className="access-title">{eventInfo?.title || 'Photo Gallery'}</h1>
             <p className="access-subtitle">Enter the access code shared by your photographer</p>
             <form onSubmit={handleVerify}>
@@ -224,7 +224,7 @@ export default function GalleryPage() {
         <div className="gallery-container">
           {/* Header */}
           <header className="gallery-header">
-            <p className="gallery-header-logo">Verma Studios</p>
+            <p className="gallery-header-logo">Verma Studio</p>
             <h1 className="gallery-event-title">{galleryData.title}</h1>
             <div className="gallery-meta">
               <span className="gallery-meta-item"><span className="gallery-meta-icon">👤</span>{galleryData.clientName}</span>
@@ -341,9 +341,9 @@ export default function GalleryPage() {
 
           {/* Footer */}
           <footer className="gallery-footer">
-            <p className="gallery-footer-logo">Verma Studios</p>
+            <p className="gallery-footer-logo">Verma Studio</p>
             <div className="gallery-footer-divider" />
-            <p className="gallery-footer-text">© {new Date().getFullYear()} Verma Studios. All rights reserved.</p>
+            <p className="gallery-footer-text">© {new Date().getFullYear()} Verma Studio. All rights reserved.</p>
           </footer>
         </div>
       </div>

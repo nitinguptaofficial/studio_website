@@ -70,7 +70,7 @@ export default function GalleryHomePage() {
 
       {/* Header */}
       <header className="gallery-header" style={{ borderBottom: 'none', paddingBottom: '0' }}>
-        <p className="gallery-header-logo">Verma Studios</p>
+        <p className="gallery-header-logo">Verma Studio</p>
         <h1 className="gallery-event-title">Client Galleries</h1>
         <p style={{ color: 'rgba(255, 255, 255, 0.5)', maxWidth: '500px', margin: '0 auto', fontSize: '15px' }}>
           Select your event to access the private photo gallery. You will need your unique access code.
@@ -123,10 +123,10 @@ export default function GalleryHomePage() {
       
       {/* Footer */}
       <footer className="gallery-footer" style={{ marginTop: '0' }}>
-        <p className="gallery-footer-logo">Verma Studios</p>
+        <p className="gallery-footer-logo">Verma Studio</p>
         <div className="gallery-footer-divider" />
         <p className="gallery-footer-text">
-          © {new Date().getFullYear()} Verma Studios. All rights reserved.
+          © {new Date().getFullYear()} Verma Studio. All rights reserved.
         </p>
       </footer>
     </div>

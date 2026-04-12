@@ -88,7 +88,7 @@ export default function WorkPage() {
           <p style={{ fontSize: '16px', color: 'rgba(250, 250, 250, 0.6)', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px' }}>
             Let us create something beautiful for you. Get in touch to discuss your project.
           </p>
-          <a href="/contact" className="btn btn-primary">
+          <a href="/contact" className="bg-[#00637C] text-white text-[20px]" style={{ padding: '10px 24px' }}>
             Book a Session
           </a>
         </div>

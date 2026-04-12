@@ -113,7 +113,7 @@ export default function AboutPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&h=500&fit=crop"
-              alt="Verma Studios workspace"
+              alt="Verma Studio workspace"
               style={{
                 width: '100%',
                 height: '100%',

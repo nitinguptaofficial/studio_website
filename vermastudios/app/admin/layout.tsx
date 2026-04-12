@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | Verma Studios',
-  description: 'Manage Verma Studios content and contacts.',
+  title: 'Admin Dashboard | Verma Studio',
+  description: 'Manage Verma Studio content and contacts.',
 };
 
 import AdminGuard from '../components/AdminGuard';
